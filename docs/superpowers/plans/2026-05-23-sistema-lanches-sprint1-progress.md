@@ -21,7 +21,7 @@
 | Task 10: Dashboard + Server Action | ✅ Done | |
 | Task 11: Full Test Run + Manual Verification | 🔲 Pending | Tests pass; dev-server verification not yet done |
 
-**Test suite:** 15/15 passing (3 files: totals, products API, sales API)
+**Test suite:** 22/22 passing (4 files: totals, products API, sales API, register API)
 
 ---
 

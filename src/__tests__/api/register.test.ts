@@ -3,6 +3,8 @@ import { POST } from '@/app/api/register/route'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
+// POST /api/register is a public endpoint — no session mock needed
+
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn(),
