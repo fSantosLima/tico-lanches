@@ -105,7 +105,7 @@ erDiagram
     User {
         String id PK
         String email UK
-        String name
+        String name "opcional"
         String password
         DateTime createdAt
     }
@@ -234,6 +234,7 @@ npx vitest run src/__tests__/lib/totals.test.ts            # arquivo específico
 | Arquivo | O que cobre |
 |---------|-------------|
 | `api/products.test.ts` | GET (filtro por usuário) e POST (validação + criação) |
+| `api/register.test.ts` | POST /api/register — criação de conta e validação de duplicatas |
 | `api/sales.test.ts` | POST (snapshot de preço) e GET /today (filtro de data + soma) |
 | `lib/totals.test.ts` | `calcularTotalDia()` — função pura, sem mock |
 
