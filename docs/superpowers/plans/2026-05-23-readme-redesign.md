@@ -1,3 +1,102 @@
+# README Redesign Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Replace the default Next.js README with a comprehensive developer reference in pt-BR, including Mermaid diagrams and a complete local setup guide.
+
+**Architecture:** Two files change — `README.md` (full rewrite) and `.env.example` (new file). No code changes. Work happens in `.worktrees/feature-readme` on branch `feature/readme`.
+
+**Tech Stack:** Markdown, Mermaid (rendered by GitHub), Next.js 16, Prisma 7, NextAuth.js v4, Vitest
+
+---
+
+## Files
+
+| Action | Path | Purpose |
+|--------|------|---------|
+| Modify | `README.md` | Replace Next.js boilerplate with full developer README |
+| Create | `.env.example` | Environment variable template for onboarding |
+| Commit | `docs/superpowers/specs/2026-05-23-readme-design.md` | Spec doc written in brainstorm session, still untracked |
+
+---
+
+### Task 1: Commit the spec document
+
+**Files:**
+- Commit: `docs/superpowers/specs/2026-05-23-readme-design.md`
+
+- [ ] **Step 1: Verify the spec file exists and is untracked**
+
+```bash
+git status docs/superpowers/specs/2026-05-23-readme-design.md
+```
+
+Expected output: `?? docs/superpowers/specs/2026-05-23-readme-design.md`
+
+- [ ] **Step 2: Stage and commit the spec**
+
+```bash
+git add docs/superpowers/specs/2026-05-23-readme-design.md
+git commit -m "docs: add README redesign spec"
+```
+
+Expected: commit succeeds, working tree clean for that file.
+
+---
+
+### Task 2: Create `.env.example`
+
+**Files:**
+- Create: `.env.example`
+
+- [ ] **Step 1: Create the file**
+
+Create `.env.example` with this exact content:
+
+```bash
+# Banco de dados PostgreSQL
+DATABASE_URL="postgresql://postgres:senha@localhost:5432/lanches"
+
+# NextAuth — gere um valor aleatório: openssl rand -base64 32
+NEXTAUTH_SECRET="seu-secret-aqui"
+
+# URL base da aplicação (sem barra no final)
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+- [ ] **Step 2: Verify it is not gitignored**
+
+```bash
+git check-ignore -v .env.example
+```
+
+Expected: no output (`.env.example` is NOT ignored — `.env*` glob in `.gitignore` covers `.env` and `.env.local` but not `.env.example` by Next.js convention).
+
+> If it IS ignored, add a negation line to `.gitignore`:
+> ```
+> !.env.example
+> ```
+> and stage `.gitignore` together with `.env.example` in the next step.
+
+- [ ] **Step 3: Stage and commit**
+
+```bash
+git add .env.example
+git commit -m "chore: add .env.example for local setup onboarding"
+```
+
+---
+
+### Task 3: Write the README
+
+**Files:**
+- Modify: `README.md`
+
+- [ ] **Step 1: Replace README.md with the full content below**
+
+Replace the entire content of `README.md` with:
+
+````markdown
 # Sistema de Gestão de Lanches
 
 Ferramenta mobile-first para vendedores autônomos de lanches registrarem vendas com 1 toque e acompanharem o resultado financeiro do dia em tempo real.
@@ -105,7 +204,7 @@ erDiagram
     User {
         String id PK
         String email UK
-        String name "opcional"
+        String name
         String password
         DateTime createdAt
     }
@@ -234,7 +333,6 @@ npx vitest run src/__tests__/lib/totals.test.ts            # arquivo específico
 | Arquivo | O que cobre |
 |---------|-------------|
 | `api/products.test.ts` | GET (filtro por usuário) e POST (validação + criação) |
-| `api/register.test.ts` | POST /api/register — criação de conta e validação de duplicatas |
 | `api/sales.test.ts` | POST (snapshot de preço) e GET /today (filtro de data + soma) |
 | `lib/totals.test.ts` | `calcularTotalDia()` — função pura, sem mock |
 
@@ -256,3 +354,96 @@ O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer
 **1. Banco de dados** — criar instância no [Neon](https://neon.tech) ou Vercel Postgres e copiar a `DATABASE_URL`.
 
 **2. Aplicação** — importar o repositório no [Vercel](https://vercel.com), configurar as variáveis de ambiente (`DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`) e fazer deploy.
+````
+
+- [ ] **Step 2: Verify the file looks correct**
+
+```bash
+wc -l README.md
+```
+
+Expected: ~175–200 lines.
+
+```bash
+grep "mermaid" README.md | wc -l
+```
+
+Expected: `3` (three Mermaid code blocks).
+
+- [ ] **Step 3: Run tests to confirm nothing broke**
+
+```bash
+npm test
+```
+
+Expected: `22 passed (22)` — README is documentation only, no code changed.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add README.md
+git commit -m "docs: rewrite README with architecture diagrams, setup guide, and roadmap"
+```
+
+---
+
+### Task 4: Open a Pull Request
+
+**Files:** none
+
+- [ ] **Step 1: Push the branch**
+
+```bash
+git push -u origin feature/readme
+```
+
+- [ ] **Step 2: Open PR**
+
+```bash
+gh pr create \
+  --title "docs: rewrite README with full developer reference" \
+  --body "$(cat <<'EOF'
+## Summary
+
+- Replaces the default Next.js README boilerplate with a complete developer reference in pt-BR
+- Adds Mermaid diagrams for architecture, ER model, and auth flow
+- Adds `.env.example` for onboarding
+- Commits the README redesign spec from the brainstorm session
+
+## Test plan
+
+- [ ] Verify all 22 tests pass on CI
+- [ ] Open the PR on GitHub and confirm Mermaid diagrams render correctly in the three code blocks (architecture flowchart, ER diagram, auth sequence diagram)
+- [ ] Follow the Setup Local steps from scratch in a clean environment to verify they work end-to-end
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+---
+
+## Self-Review
+
+**Spec coverage check:**
+
+| Spec section | Task |
+|---|---|
+| Sobre o projeto | Task 3 — README section 1 |
+| Tech Stack | Task 3 — README section 2 |
+| Pré-requisitos | Task 3 — README section 3 |
+| Setup local (env + docker + migrate + dev) | Task 3 — README section 4 |
+| Arquitetura (Mermaid flowchart) | Task 3 — README section 5 |
+| Modelo de dados (Mermaid ER) | Task 3 — README section 6 |
+| API Endpoints table | Task 3 — README section 7 |
+| Autenticação (Mermaid sequence) | Task 3 — README section 8 |
+| Estrutura de pastas | Task 3 — README section 9 |
+| Testes | Task 3 — README section 10 |
+| Roadmap | Task 3 — README section 11 |
+| Deploy | Task 3 — README section 12 |
+| `.env.example` (referenced in setup) | Task 2 |
+| Spec doc untracked | Task 1 |
+
+**Placeholder scan:** No TBD, no TODO, no vague steps. All steps include exact commands and complete file content. ✅
+
+**Type/name consistency:** No code types involved — documentation only. ✅
