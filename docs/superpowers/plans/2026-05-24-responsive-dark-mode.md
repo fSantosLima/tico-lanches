@@ -1,6 +1,6 @@
 # Responsive Layout e Dark Mode — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Tornar o app responsivo para desktop (sidebar lateral + grid expandido) e corrigir o dark mode com paleta slate, toggle manual e suporte ao sistema operacional.
 
@@ -33,7 +33,7 @@
 **Files:**
 - Modify: `src/app/globals.css`
 
-- [ ] **Step 1: Instalar next-themes**
+- [x] **Step 1: Instalar next-themes**
 
 ```bash
 cd sistema-lanches
@@ -42,7 +42,7 @@ npm install next-themes
 
 Saída esperada: pacote instalado sem erros, `next-themes` aparece em `package.json` em `dependencies`.
 
-- [ ] **Step 2: Atualizar globals.css**
+- [x] **Step 2: Atualizar globals.css**
 
 Substituir o conteúdo completo do arquivo `src/app/globals.css` por:
 
@@ -63,7 +63,7 @@ body {
 
 > **Por quê:** Tailwind v4 não usa `tailwind.config.js`. A diretiva `@custom-variant dark` ativa as classes `dark:` quando o elemento `<html>` tiver a classe `dark` (definida pelo next-themes). As variáveis CSS de dark mode do `:root` são removidas — o controle passa para as variantes `dark:` do Tailwind.
 
-- [ ] **Step 3: Verificar que o build não quebra**
+- [x] **Step 3: Verificar que o build não quebra**
 
 ```bash
 npm run build
@@ -71,7 +71,7 @@ npm run build
 
 Saída esperada: build completo sem erros de CSS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/globals.css package.json package-lock.json
@@ -85,7 +85,7 @@ git commit -m "feat: install next-themes and configure Tailwind v4 dark variant"
 **Files:**
 - Create: `src/components/ThemeToggle.tsx`
 
-- [ ] **Step 1: Criar o componente**
+- [x] **Step 1: Criar o componente**
 
 Criar o arquivo `src/components/ThemeToggle.tsx`:
 
@@ -118,7 +118,7 @@ export function ThemeToggle() {
 
 > **Por quê do `mounted`:** `next-themes` resolve o tema apenas no cliente (após hidratação). Renderizar o ícone no servidor causaria um mismatch de hidratação. O `useEffect` garante que o botão só aparece após o cliente saber qual tema está ativo.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/components/ThemeToggle.tsx
@@ -132,7 +132,7 @@ git commit -m "feat: add ThemeToggle component"
 **Files:**
 - Create: `src/components/Sidebar.tsx`
 
-- [ ] **Step 1: Criar o componente**
+- [x] **Step 1: Criar o componente**
 
 Criar o arquivo `src/components/Sidebar.tsx`:
 
@@ -174,7 +174,7 @@ export function Sidebar() {
 
 > **Por quê `hidden lg:flex`:** A sidebar só aparece em telas `lg` (1024px+). No mobile, cada página tem seu próprio header inline.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/components/Sidebar.tsx
@@ -188,7 +188,7 @@ git commit -m "feat: add Sidebar component for desktop navigation"
 **Files:**
 - Modify: `src/app/layout.tsx`
 
-- [ ] **Step 1: Atualizar layout.tsx**
+- [x] **Step 1: Atualizar layout.tsx**
 
 Substituir o conteúdo completo de `src/app/layout.tsx` por:
 
@@ -242,7 +242,7 @@ export default function RootLayout({
 >
 > **Por quê `min-w-0` no `<main>`:** Evita que o `flex-1` estoure a largura quando o conteúdo interno for mais largo que o espaço disponível.
 
-- [ ] **Step 2: Verificar o build**
+- [x] **Step 2: Verificar o build**
 
 ```bash
 npm run build
@@ -250,7 +250,7 @@ npm run build
 
 Saída esperada: build sem erros. A sidebar ainda não mostra links ativos porque as páginas ainda têm `max-w-md` — será corrigido nas tarefas seguintes.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/layout.tsx
@@ -264,7 +264,7 @@ git commit -m "feat: add ThemeProvider and Sidebar to root layout"
 **Files:**
 - Modify: `src/app/dashboard/page.tsx`
 
-- [ ] **Step 1: Substituir o conteúdo de dashboard/page.tsx**
+- [x] **Step 1: Substituir o conteúdo de dashboard/page.tsx**
 
 ```tsx
 import { getServerSession } from 'next-auth'
@@ -352,7 +352,7 @@ export default async function DashboardPage() {
 }
 ```
 
-- [ ] **Step 2: Rodar os testes para garantir que nada quebrou**
+- [x] **Step 2: Rodar os testes para garantir que nada quebrou**
 
 ```bash
 npm run test
@@ -360,7 +360,7 @@ npm run test
 
 Saída esperada: todos os testes passam (os testes existentes são de API/lib, não de componentes).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/dashboard/page.tsx
@@ -374,7 +374,7 @@ git commit -m "feat: make dashboard responsive and add dark mode"
 **Files:**
 - Modify: `src/app/products/page.tsx`
 
-- [ ] **Step 1: Substituir o conteúdo de products/page.tsx**
+- [x] **Step 1: Substituir o conteúdo de products/page.tsx**
 
 ```tsx
 import { getServerSession } from 'next-auth'
@@ -448,7 +448,7 @@ export default async function ProductsPage() {
 }
 ```
 
-- [ ] **Step 2: Rodar os testes**
+- [x] **Step 2: Rodar os testes**
 
 ```bash
 npm run test
@@ -456,7 +456,7 @@ npm run test
 
 Saída esperada: todos os testes passam.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/products/page.tsx
@@ -470,7 +470,7 @@ git commit -m "feat: make products page responsive and add dark mode"
 **Files:**
 - Modify: `src/app/products/new/page.tsx`
 
-- [ ] **Step 1: Substituir o conteúdo de products/new/page.tsx**
+- [x] **Step 1: Substituir o conteúdo de products/new/page.tsx**
 
 ```tsx
 'use client'
@@ -578,7 +578,7 @@ export default function NewProductPage() {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/products/new/page.tsx
@@ -594,7 +594,7 @@ git commit -m "feat: add dark mode to new product form"
 - Modify: `src/app/(auth)/login/page.tsx`
 - Modify: `src/app/(auth)/register/page.tsx`
 
-- [ ] **Step 1: Atualizar (auth)/layout.tsx**
+- [x] **Step 1: Atualizar (auth)/layout.tsx**
 
 ```tsx
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -608,7 +608,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-- [ ] **Step 2: Atualizar (auth)/login/page.tsx**
+- [x] **Step 2: Atualizar (auth)/login/page.tsx**
 
 ```tsx
 'use client'
@@ -689,7 +689,7 @@ export default function LoginPage() {
 }
 ```
 
-- [ ] **Step 3: Atualizar (auth)/register/page.tsx**
+- [x] **Step 3: Atualizar (auth)/register/page.tsx**
 
 ```tsx
 'use client'
@@ -781,7 +781,7 @@ export default function RegisterPage() {
 }
 ```
 
-- [ ] **Step 4: Rodar os testes**
+- [x] **Step 4: Rodar os testes**
 
 ```bash
 npm run test
@@ -789,7 +789,7 @@ npm run test
 
 Saída esperada: todos os testes passam.
 
-- [ ] **Step 5: Commit final**
+- [x] **Step 5: Commit final**
 
 ```bash
 git add src/app/(auth)/layout.tsx src/app/(auth)/login/page.tsx src/app/(auth)/register/page.tsx
@@ -798,15 +798,23 @@ git commit -m "feat: add dark mode to auth pages"
 
 ---
 
+## Correções pós-implementação (2026-05-24)
+
+- **ThemeToggle:** Substituído `theme` por `resolvedTheme` — quando `defaultTheme="system"`, `theme` retorna `"system"` e nunca ativa o branch dark. `resolvedTheme` resolve a preferência do SO corretamente.
+- **proxy.ts:** Next.js 16 deprecou a convenção `middleware.ts` em favor de `proxy.ts`. Arquivo renomeado sem alterações de conteúdo; warning eliminado do `npm run dev`.
+- **Testes adicionados:** `registerSale.test.ts` com 6 casos (auth, produto não encontrado, isolamento por userId, snapshot de preço, revalidação de cache, propagação de erro do banco). Dois testes novos no `products.test.ts` (`cost` ausente, `cost` negativo).
+
+---
+
 ## Verificação final
 
-- [ ] **Iniciar o servidor de desenvolvimento**
+- [x] **Iniciar o servidor de desenvolvimento**
 
 ```bash
 npm run dev
 ```
 
-- [ ] **Verificar no navegador (desktop, largura > 1024px)**
+- [x] **Verificar no navegador (desktop, largura > 1024px)**
 
 Abrir `http://localhost:3000`. Verificar:
 - Sidebar aparece à esquerda com links Dashboard e Produtos
@@ -815,18 +823,18 @@ Abrir `http://localhost:3000`. Verificar:
 - Recarregar a página mantém o tema escolhido
 - Em dark mode: fundo slate-900, cards slate-800, textos claros
 
-- [ ] **Verificar no navegador (mobile, redimensionar < 1024px)**
+- [x] **Verificar no navegador (mobile, redimensionar < 1024px)**
 
 - Sidebar desaparece
 - Header inline aparece em cada página com links e toggle
 - Layout em coluna única, igual ao original
 
-- [ ] **Verificar preferência do sistema**
+- [x] **Verificar preferência do sistema**
 
 - Mudar o tema do SO para dark → abrir o app em nova aba → deve carregar em dark mode automaticamente
 - Clicar no toggle → muda manualmente → recarregar → mantém a escolha manual
 
-- [ ] **Commit de verificação (se necessário)**
+- [x] **Commit de verificação (se necessário)**
 
 Se algum ajuste fino for feito durante a verificação:
 
