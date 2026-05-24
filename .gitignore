@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Claude Code local settings
 /.claude
+
+# Superpowers visual companion temp files
+/.superpowers
