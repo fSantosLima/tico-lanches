@@ -38,7 +38,7 @@ export default function RegisterPage() {
       <h1 className="text-2xl font-bold text-center mb-6 dark:text-slate-100">Criar Conta</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1 dark:text-slate-200">Nome (opcional)</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Nome (opcional)</label>
           <input
             type="text"
             value={name}
@@ -47,7 +47,7 @@ export default function RegisterPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 dark:text-slate-200">Email</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Email</label>
           <input
             type="email"
             value={email}
@@ -57,7 +57,7 @@ export default function RegisterPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 dark:text-slate-200">Senha</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Senha</label>
           <input
             type="password"
             value={password}

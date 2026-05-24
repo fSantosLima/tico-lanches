@@ -12,7 +12,7 @@ export default async function ProductsPage() {
   })
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 lg:p-6">
       {/* Header mobile — oculto no desktop */}
       <div className="flex items-center justify-between mb-4 lg:hidden">
         <Link href="/dashboard" className="text-orange-500 text-sm">

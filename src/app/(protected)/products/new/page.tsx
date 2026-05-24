@@ -39,7 +39,7 @@ export default function NewProductPage() {
   }
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 lg:p-6">
       {/* Header mobile — oculto no desktop */}
       <div className="flex items-center justify-between mb-4 lg:hidden">
         <Link href="/products" className="text-orange-500 text-lg">←</Link>
@@ -53,7 +53,7 @@ export default function NewProductPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
         <div>
-          <label className="block text-sm font-medium mb-1 dark:text-slate-200">Nome</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Nome</label>
           <input
             type="text"
             value={name}
@@ -64,7 +64,7 @@ export default function NewProductPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 dark:text-slate-200">Preço de venda (R$)</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Preço de venda (R$)</label>
           <input
             type="number"
             value={price}
@@ -77,7 +77,7 @@ export default function NewProductPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 dark:text-slate-200">Custo (R$)</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Custo (R$)</label>
           <input
             type="number"
             value={cost}
