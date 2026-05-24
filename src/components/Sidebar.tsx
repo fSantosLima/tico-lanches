@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LogoutButton } from '@/app/dashboard/LogoutButton'
+import { LogoutButton } from '@/app/(protected)/dashboard/LogoutButton'
 import { ThemeToggle } from './ThemeToggle'
 
 export function Sidebar() {
