@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import Link from 'next/link'
 
 export default function NewProductPage() {
@@ -38,26 +39,32 @@ export default function NewProductPage() {
   }
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 lg:p-6">
+      {/* Header mobile — oculto no desktop */}
+      <div className="flex items-center justify-between mb-4 lg:hidden">
         <Link href="/products" className="text-orange-500 text-lg">←</Link>
-        <h1 className="text-xl font-bold">Novo Produto</h1>
+        <ThemeToggle />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex items-center gap-3 mb-6">
+        <Link href="/products" className="text-orange-500 text-lg hidden lg:inline">←</Link>
+        <h1 className="text-xl font-bold dark:text-slate-100">Novo Produto</h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
         <div>
-          <label className="block text-sm font-medium mb-1">Nome</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Nome</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Ex: X-Burguer"
-            className="w-full border rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Preço de venda (R$)</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Preço de venda (R$)</label>
           <input
             type="number"
             value={price}
@@ -65,12 +72,12 @@ export default function NewProductPage() {
             placeholder="0.00"
             step="0.01"
             min="0.01"
-            className="w-full border rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Custo (R$)</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Custo (R$)</label>
           <input
             type="number"
             value={cost}
@@ -78,7 +85,7 @@ export default function NewProductPage() {
             placeholder="0.00"
             step="0.01"
             min="0"
-            className="w-full border rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             required
           />
         </div>

@@ -57,6 +57,26 @@ describe('POST /api/products', () => {
     expect(res.status).toBe(400)
   })
 
+  it('retorna 400 se cost estiver ausente', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    const req = new Request('http://localhost/api/products', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'X-Burguer', price: 12 }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
+
+  it('retorna 400 se cost for negativo', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    const req = new Request('http://localhost/api/products', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'X-Burguer', price: 12, cost: -1 }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
+
   it('retorna 400 se price for zero ou negativo', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     const req = new Request('http://localhost/api/products', {

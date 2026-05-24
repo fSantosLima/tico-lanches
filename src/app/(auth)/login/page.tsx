@@ -34,25 +34,25 @@ export default function LoginPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-center mb-6">Entrar</h1>
+      <h1 className="text-2xl font-bold text-center mb-6 dark:text-slate-100">Entrar</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Email</label>
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full border rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Senha</label>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Senha</label>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full border rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             required
           />
         </div>
@@ -65,7 +65,7 @@ export default function LoginPage() {
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
       </form>
-      <p className="text-center text-sm mt-4">
+      <p className="text-center text-sm mt-4 dark:text-slate-400">
         Não tem conta?{' '}
         <Link href="/register" className="text-orange-500 font-medium">
           Cadastrar

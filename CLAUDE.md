@@ -34,7 +34,7 @@ NEXTAUTH_URL="http://localhost:3000"
 
 **Next.js App Router** with PostgreSQL via Prisma (using the `@prisma/adapter-pg` driver adapter — not the default TCP connection). The singleton client is in [src/lib/prisma.ts](src/lib/prisma.ts).
 
-**Authentication** uses NextAuth v4 with JWT strategy and a credentials provider (email/bcrypt password). The config lives in [src/lib/auth.ts](src/lib/auth.ts) and is mounted at `src/app/api/auth/[...nextauth]/route.ts`. Route protection uses Next.js middleware in [src/middleware.ts](src/middleware.ts) via `withAuth({ pages: { signIn: '/login' } })`, which redirects unauthenticated requests on `/dashboard` and `/products` to the custom login page.
+**Authentication** uses NextAuth v4 with JWT strategy and a credentials provider (email/bcrypt password). The config lives in [src/lib/auth.ts](src/lib/auth.ts) and is mounted at `src/app/api/auth/[...nextauth]/route.ts`. Route protection uses Next.js proxy in [src/proxy.ts](src/proxy.ts) via `withAuth({ pages: { signIn: '/login' } })`, which redirects unauthenticated requests on `/dashboard` and `/products` to the custom login page.
 
 **Data model** (three entities, all scoped to a `userId`):
 - `User` → `Product[]` + `Sale[]`
@@ -59,4 +59,4 @@ NEXTAUTH_URL="http://localhost:3000"
 
 - This project uses **Next.js 16** — read `node_modules/next/dist/docs/` for current API conventions before writing Next.js-specific code, as it may differ from older versions.
 - All data is per-user; every Prisma query must include `userId: session.user.id` as a filter.
-- Route protection lives in `src/middleware.ts` (standard Next.js location). It uses `withAuth` from `next-auth/middleware` with `pages: { signIn: '/login' }` so unauthenticated users land on the custom login page, not the default NextAuth page.
+- Route protection lives in `src/proxy.ts` (renamed from `middleware.ts` in Next.js 16 — the `middleware` file convention is deprecated). It uses `withAuth` from `next-auth/middleware` with `pages: { signIn: '/login' }` so unauthenticated users land on the custom login page, not the default NextAuth page.
