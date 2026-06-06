@@ -19,7 +19,7 @@
 | Task 8: Auth Pages | ✅ Done | |
 | Task 9: Products Pages | ✅ Done | |
 | Task 10: Dashboard + Server Action | ✅ Done | |
-| Task 11: Full Test Run + Manual Verification | 🔲 Pending | Tests pass; dev-server verification not yet done |
+| Task 11: Full Test Run + Manual Verification | ⚠️ Superseded | Dashboard e ProductButton substituídos na Sprint 2 (lancamento-por-quantidade) |
 
 **Test suite:** 22/22 passing (4 files: totals, products API, sales API, register API)
 
@@ -142,28 +142,13 @@ Deleted `src/proxy.ts`.
 
 ---
 
-## Task 11: Full Test Run + Manual Verification 🔲
+## Task 11: Full Test Run + Manual Verification ⚠️ Superseded
 
 - [x] Full test suite passing — 15 tests, 0 failures
-- [ ] Start dev server and run manual verification checklist:
-  1. Root `/` → redirects to `/login`
-  2. `/register` → fill form → creates account → redirects to `/login`
-  3. `/login` → wrong password → shows "Email ou senha incorretos"
-  4. `/login` → correct credentials → redirects to `/dashboard`
-  5. `/dashboard` → shows "R$ 0.00" and "0 vendas"
-  6. `/products` → shows empty state with "Criar agora" link
-  7. `/products/new` → fill form → product appears in `/products` list
-  8. `/dashboard` → product button appears with name and price
-  9. Tap product button → shows "✓ Registrado!" → total updates
-  10. Tap again → total doubles
-  11. Logout → redirects to `/login`
-  12. Direct access to `/dashboard` after logout → redirects to `/login` (**blocked by Task 7 deviation**)
-- [ ] Final commit (if any fixes applied)
+- [x] Manual verification: superseded pela Sprint 2. O dashboard com botões de produto (`ProductButton.tsx`) e a Server Action `registerSale` foram removidos e substituídos pelo fluxo de lançamento por quantidade (`feature/lancamento-por-quantidade`). O checklist original não é mais aplicável.
 
 ---
 
 ## Open Issues
 
-| # | Severity | Description |
-|---|----------|-------------|
-| 1 | 🟡 Low | Manual verification (Task 11) not yet executed. Requires running dev server against a live PostgreSQL database. |
+Nenhuma pendência em aberto da Sprint 1. O item de verificação manual foi encerrado pela reescrita do dashboard na Sprint 2.

@@ -10,6 +10,8 @@ vi.mock('@/lib/prisma', () => ({
     sale: {
       create: vi.fn(),
       findMany: vi.fn(),
+      upsert: vi.fn(),
+      deleteMany: vi.fn(),
     },
     user: {
       create: vi.fn(),
