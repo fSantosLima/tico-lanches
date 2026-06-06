@@ -9,8 +9,8 @@ import Link from 'next/link'
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const today = new Date(todayStr)  // UTC midnight
 
   const salesToday = await prisma.sale.findMany({
     where: { userId: session!.user.id, date: today },

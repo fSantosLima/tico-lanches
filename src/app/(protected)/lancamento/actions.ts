@@ -12,11 +12,10 @@ export async function salvarLancamento(
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) throw new Error('Não autorizado')
 
-  // Validate date first (must be today or in the past)
+  // Validate date first (format check + must be today or in the past)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) throw new Error('Data inválida')
   const today = new Date().toISOString().slice(0, 10)
   if (dateStr > today) throw new Error('Data inválida')
-
-  const date = new Date(dateStr)
 
   // Validate all quantities before processing
   for (const item of itens) {
