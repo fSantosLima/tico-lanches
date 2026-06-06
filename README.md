@@ -1,8 +1,8 @@
 # Sistema de Gestão de Lanches
 
-Ferramenta mobile-first para vendedores autônomos de lanches registrarem vendas com 1 toque e acompanharem o resultado financeiro do dia em tempo real.
+Ferramenta mobile-first para vendedores autônomos de lanches lançarem as vendas do dia por quantidade e acompanharem faturamento e lucro estimado em tempo real.
 
-O Sprint 1 cobre o fluxo principal: criar conta → cadastrar produtos → registrar vendas → ver total do dia.
+O fluxo principal: criar conta → cadastrar produtos → lançar quantidades vendidas ao final do expediente → ver faturamento e lucro do dia.
 
 ---
 
@@ -82,18 +82,19 @@ Next.js App Router gerencia frontend e API no mesmo processo. O middleware prote
 
 ```mermaid
 flowchart LR
-    Browser -->|request| Middleware["src/middleware.ts\n(withAuth)"]
-    Middleware -->|autenticado| AppRouter["App Router"]
-    Middleware -->|não autenticado| Login["/login"]
+    Browser -->|request| Proxy["src/proxy.ts\n(withAuth)"]
+    Proxy -->|autenticado| AppRouter["App Router"]
+    Proxy -->|não autenticado| Login["/login"]
     AppRouter --> Dashboard["/dashboard"]
+    AppRouter --> Lancamento["/lancamento"]
     AppRouter --> Products["/products"]
     AppRouter --> API["API Routes\n/api/*"]
     API --> Prisma["PrismaClient\nsrc/lib/prisma.ts"]
     Prisma --> DB[("PostgreSQL")]
 ```
 
-- `src/middleware.ts` usa `withAuth` do NextAuth para proteger `/dashboard` e `/products`
-- API Routes validam sessão via `getServerSession` antes de qualquer operação no banco
+- `src/proxy.ts` usa `withAuth` do NextAuth para proteger `/dashboard`, `/products` e `/lancamento`
+- Server Actions (ex: `salvarLancamento`) validam sessão via `getServerSession` antes de qualquer operação
 - O singleton do PrismaClient usa o driver adapter `@prisma/adapter-pg` (não a conexão TCP padrão)
 
 ---
@@ -121,8 +122,12 @@ erDiagram
         String id PK
         String productId FK
         String userId FK
-        Float value
+        DateTime date "apenas a data (sem hora)"
+        Int quantity
+        Float unitPrice
+        Float unitCost
         DateTime createdAt
+        DateTime updatedAt
     }
 
     User ||--o{ Product : "possui"
@@ -130,7 +135,7 @@ erDiagram
     Product ||--o{ Sale : "é vendido em"
 ```
 
-> `Sale.value` armazena o preço no momento da venda. Edições futuras em `Product.price` não afetam o histórico financeiro.
+> `Sale` é um agregado por produto/dia — 1 linha por produto por data. `(userId, productId, date)` é único. `unitPrice` e `unitCost` são snapshots tirados no momento do lançamento; edições futuras de preço não afetam o histórico.
 
 ---
 
@@ -144,8 +149,9 @@ Todas as rotas (exceto `/api/auth/*` e `/api/register`) exigem sessão ativa e r
 | POST | `/api/register` | Cria conta de usuário |
 | GET | `/api/products` | Lista produtos do usuário autenticado |
 | POST | `/api/products` | Cria produto (`name`, `price > 0`, `cost > 0`) |
-| POST | `/api/sales` | Registra venda com snapshot do preço atual do produto |
-| GET | `/api/sales/today` | Vendas do dia atual + total em reais |
+| GET | `/api/sales/today` | Vendas do dia atual + `{ faturamento, lucro }` |
+
+> `POST /api/sales` foi removido. Lançamentos são feitos via Server Action `salvarLancamento` em `/lancamento/actions.ts`.
 
 ---
 
@@ -173,7 +179,7 @@ sequenceDiagram
     end
 ```
 
-Rotas protegidas pelo middleware: `/dashboard`, `/products`. Usuários não autenticados são redirecionados para `/login`.
+Rotas protegidas por `src/proxy.ts`: `/dashboard`, `/products`, `/lancamento`. Usuários não autenticados são redirecionados para `/login`.
 
 ---
 
@@ -182,43 +188,52 @@ Rotas protegidas pelo middleware: `/dashboard`, `/products`. Usuários não aute
 ```
 sistema-lanches/
 ├── prisma/
-│   └── schema.prisma              # Modelos: User, Product, Sale
+│   ├── schema.prisma              # Modelos: User, Product, Sale (agregado por dia)
+│   └── migrations/                # Histórico de migrations SQL
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/
 │   │   │   ├── login/             # Página de login
 │   │   │   └── register/          # Página de cadastro
-│   │   ├── dashboard/
-│   │   │   ├── page.tsx           # Botões de produto + total do dia
-│   │   │   └── actions.ts         # Server Action: registerSale
-│   │   ├── products/
-│   │   │   ├── page.tsx           # Lista de produtos
-│   │   │   └── new/page.tsx       # Formulário de criação
+│   │   ├── (protected)/
+│   │   │   ├── dashboard/
+│   │   │   │   ├── page.tsx       # Card de hoje + botão lançar + dias anteriores
+│   │   │   │   └── LogoutButton.tsx
+│   │   │   ├── lancamento/
+│   │   │   │   ├── page.tsx       # Server Component: carrega produtos e lançamentos do dia
+│   │   │   │   ├── LancamentoForm.tsx  # Client Component: − / + com totais ao vivo
+│   │   │   │   └── actions.ts     # Server Action: salvarLancamento
+│   │   │   └── products/
+│   │   │       ├── page.tsx       # Lista de produtos
+│   │   │       └── new/page.tsx   # Formulário de criação
 │   │   └── api/
 │   │       ├── auth/[...nextauth]/route.ts
 │   │       ├── products/route.ts
 │   │       ├── register/route.ts
 │   │       └── sales/
-│   │           ├── route.ts
-│   │           └── today/route.ts
+│   │           ├── route.ts       # (tombstone — POST removido)
+│   │           └── today/route.ts # GET: vendas do dia + faturamento + lucro
 │   ├── lib/
-│   │   ├── prisma.ts              # Singleton PrismaClient
+│   │   ├── prisma.ts              # Singleton PrismaClient (driver adapter pg)
 │   │   ├── auth.ts                # Config NextAuth
-│   │   └── totals.ts              # calcularTotalDia() — função pura
-│   ├── middleware.ts               # withAuth — proteção de rotas
+│   │   └── totals.ts              # calcularResumo() — faturamento + lucro
+│   ├── proxy.ts                   # withAuth — proteção de rotas
 │   └── __tests__/
-│       ├── setup.ts                # Mock global do Prisma
+│       ├── setup.ts               # Mock global do Prisma
+│       ├── actions/
+│       │   └── salvarLancamento.test.ts
 │       ├── api/
 │       │   ├── products.test.ts
-│       │   └── sales.test.ts
+│       │   ├── sales.test.ts
+│       │   └── register.test.ts
 │       └── lib/
 │           └── totals.test.ts
-├── .env.example                    # Template de variáveis de ambiente
+├── .env.example                   # Template de variáveis de ambiente
 ├── docs/
 │   └── superpowers/
-│       ├── specs/                  # Design docs de cada sprint
-│       └── plans/                  # Planos de implementação
-└── CLAUDE.md                       # Referência técnica para agentes de IA
+│       ├── specs/                 # Design docs de cada sprint
+│       └── plans/                 # Planos de implementação
+└── CLAUDE.md                      # Referência técnica para agentes de IA
 ```
 
 ---
@@ -233,12 +248,13 @@ npx vitest run src/__tests__/lib/totals.test.ts            # arquivo específico
 
 | Arquivo | O que cobre |
 |---------|-------------|
+| `actions/salvarLancamento.test.ts` | Auth, upsert com snapshot, quantity=0 remove, validação de data futura/negativo/decimal, isolamento por userId |
 | `api/products.test.ts` | GET (filtro por usuário) e POST (validação + criação) |
 | `api/register.test.ts` | POST /api/register — criação de conta e validação de duplicatas |
-| `api/sales.test.ts` | POST (snapshot de preço) e GET /today (filtro de data + soma) |
-| `lib/totals.test.ts` | `calcularTotalDia()` — função pura, sem mock |
+| `api/sales.test.ts` | GET /api/sales/today — 401, faturamento+lucro calculados, zeros sem vendas |
+| `lib/totals.test.ts` | `calcularResumo()` — lista vazia, faturamento, lucro, margem zero |
 
-O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer banco de dados real.
+O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer banco de dados real. **31 testes, 5 arquivos.**
 
 ---
 
@@ -246,8 +262,8 @@ O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer
 
 | Sprint | Status | Funcionalidades |
 |--------|--------|----------------|
-| Sprint 1 | ✅ Concluído | Login, cadastro, produtos, registro de vendas com 1 toque, total do dia |
-| Sprint 2 | 🔜 Planejado | Controle de estoque, gestão de gastos, relatório de lucro diário/mensal, exportação PDF |
+| Sprint 1 | ✅ Concluído | Login, cadastro, produtos, lançamento por quantidade, faturamento + lucro do dia, dark mode, responsivo |
+| Sprint 2 | 🔜 Planejado | Seletor de data no lançamento (trocar data), demais funcionalidades a definir |
 
 ---
 
