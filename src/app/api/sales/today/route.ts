@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
-import { calcularTotalDia } from '@/lib/totals'
+import { calcularResumo } from '@/lib/totals'
 
 export async function GET(_req?: Request) {
   const session = await getServerSession(authOptions)
@@ -10,19 +10,15 @@ export async function GET(_req?: Request) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-  const endOfDay = new Date()
-  endOfDay.setHours(23, 59, 59, 999)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
   const sales = await prisma.sale.findMany({
-    where: {
-      userId: session.user.id,
-      createdAt: { gte: startOfDay, lte: endOfDay },
-    },
+    where: { userId: session.user.id, date: today },
     include: { product: { select: { name: true } } },
     orderBy: { createdAt: 'desc' },
   })
 
-  return NextResponse.json({ sales, total: calcularTotalDia(sales) })
+  const { faturamento, lucro } = calcularResumo(sales)
+  return NextResponse.json({ sales, faturamento, lucro })
 }
