@@ -1,6 +1,6 @@
 # Lançamento por Quantidade — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Substituir o fluxo de "1 toque = 1 venda em tempo real" por um lançamento de fim de expediente onde o usuário informa a quantidade vendida de cada produto, com faturamento e lucro calculados ao vivo.
 
@@ -42,7 +42,7 @@
 
 O mock global precisa expor `sale.upsert` e `sale.deleteMany` que serão usados pela nova Server Action.
 
-- [ ] **Step 1: Atualizar setup.ts**
+- [x] **Step 1: Atualizar setup.ts**
 
 Substituir o conteúdo completo de `src/__tests__/setup.ts`:
 
@@ -70,7 +70,7 @@ vi.mock('@/lib/prisma', () => ({
 }))
 ```
 
-- [ ] **Step 2: Rodar os testes e confirmar que ainda passam**
+- [x] **Step 2: Rodar os testes e confirmar que ainda passam**
 
 ```bash
 npm run test
@@ -78,7 +78,7 @@ npm run test
 
 Saída esperada: todos os testes passam. (Nenhum teste usa os novos métodos ainda.)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/__tests__/setup.ts
@@ -93,7 +93,7 @@ git commit -m "test: expose sale.upsert and sale.deleteMany in Prisma mock"
 - Modify: `src/lib/totals.ts`
 - Modify: `src/__tests__/lib/totals.test.ts`
 
-- [ ] **Step 1: Escrever os testes novos (TDD — falharão até Task 2 Step 3)**
+- [x] **Step 1: Escrever os testes novos (TDD — falharão até Task 2 Step 3)**
 
 Substituir o conteúdo completo de `src/__tests__/lib/totals.test.ts`:
 
@@ -136,7 +136,7 @@ describe('calcularResumo', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falham**
+- [x] **Step 2: Rodar para confirmar que falham**
 
 ```bash
 npx vitest run src/__tests__/lib/totals.test.ts
@@ -144,7 +144,7 @@ npx vitest run src/__tests__/lib/totals.test.ts
 
 Saída esperada: FAIL — `calcularResumo` não encontrada.
 
-- [ ] **Step 3: Implementar `calcularResumo` em `src/lib/totals.ts`**
+- [x] **Step 3: Implementar `calcularResumo` em `src/lib/totals.ts`**
 
 Substituir o conteúdo completo de `src/lib/totals.ts`:
 
@@ -162,7 +162,7 @@ export function calcularResumo(
 }
 ```
 
-- [ ] **Step 4: Rodar os testes e confirmar que passam**
+- [x] **Step 4: Rodar os testes e confirmar que passam**
 
 ```bash
 npx vitest run src/__tests__/lib/totals.test.ts
@@ -170,7 +170,7 @@ npx vitest run src/__tests__/lib/totals.test.ts
 
 Saída esperada: 5 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/totals.ts src/__tests__/lib/totals.test.ts
@@ -184,7 +184,7 @@ git commit -m "feat: replace calcularTotalDia with calcularResumo (faturamento +
 **Files:**
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Atualizar o schema**
+- [x] **Step 1: Atualizar o schema**
 
 Substituir o modelo `Sale` existente em `prisma/schema.prisma`:
 
@@ -206,7 +206,7 @@ model Sale {
 }
 ```
 
-- [ ] **Step 2: Criar a migration (destrói dados de venda existentes — esperado)**
+- [x] **Step 2: Criar a migration (destrói dados de venda existentes — esperado)**
 
 ```bash
 npx prisma migrate dev --name sale-aggregate-by-day
@@ -214,7 +214,7 @@ npx prisma migrate dev --name sale-aggregate-by-day
 
 Saída esperada: migração aplicada, cliente Prisma regenerado. Os dados da tabela `Sale` anterior são descartados.
 
-- [ ] **Step 3: Confirmar que o build não quebra**
+- [x] **Step 3: Confirmar que o build não quebra**
 
 ```bash
 npm run build
@@ -222,7 +222,7 @@ npm run build
 
 Saída esperada: build sem erros de tipo. (Haverá erros de TS nas rotas/pages que ainda usam o modelo antigo — normal neste ponto; serão corrigidos nas próximas tasks.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations/
@@ -238,7 +238,7 @@ git commit -m "feat: redefine Sale as daily aggregate (quantity + price/cost sna
 - Modify: `src/app/api/sales/route.ts`
 - Modify: `src/__tests__/api/sales.test.ts`
 
-- [ ] **Step 1: Escrever os novos testes (substituindo os antigos)**
+- [x] **Step 1: Escrever os novos testes (substituindo os antigos)**
 
 Substituir o conteúdo completo de `src/__tests__/api/sales.test.ts`:
 
@@ -292,7 +292,7 @@ describe('GET /api/sales/today', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falham**
+- [x] **Step 2: Rodar para confirmar que falham**
 
 ```bash
 npx vitest run src/__tests__/api/sales.test.ts
@@ -300,7 +300,7 @@ npx vitest run src/__tests__/api/sales.test.ts
 
 Saída esperada: FAIL — `data.faturamento` e `data.lucro` não existem ainda.
 
-- [ ] **Step 3: Atualizar `src/app/api/sales/today/route.ts`**
+- [x] **Step 3: Atualizar `src/app/api/sales/today/route.ts`**
 
 Substituir o conteúdo completo:
 
@@ -331,7 +331,7 @@ export async function GET(_req?: Request) {
 }
 ```
 
-- [ ] **Step 4: Atualizar `src/app/api/sales/route.ts`** — remover o `POST` (substituído pela Server Action)
+- [x] **Step 4: Atualizar `src/app/api/sales/route.ts`** — remover o `POST` (substituído pela Server Action)
 
 Substituir o conteúdo completo:
 
@@ -341,7 +341,7 @@ Substituir o conteúdo completo:
 export {}
 ```
 
-- [ ] **Step 5: Rodar os testes**
+- [x] **Step 5: Rodar os testes**
 
 ```bash
 npx vitest run src/__tests__/api/sales.test.ts
@@ -349,7 +349,7 @@ npx vitest run src/__tests__/api/sales.test.ts
 
 Saída esperada: 3 passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/app/api/sales/today/route.ts src/app/api/sales/route.ts src/__tests__/api/sales.test.ts
@@ -366,7 +366,7 @@ git commit -m "feat: update sales/today to return faturamento+lucro, remove POST
 - Delete: `src/__tests__/actions/registerSale.test.ts` (substituído)
 - Delete: `src/app/(protected)/dashboard/actions.ts` (substituído)
 
-- [ ] **Step 1: Escrever os testes da nova Server Action**
+- [x] **Step 1: Escrever os testes da nova Server Action**
 
 Criar `src/__tests__/actions/salvarLancamento.test.ts`:
 
@@ -463,7 +463,7 @@ describe('salvarLancamento', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falham**
+- [x] **Step 2: Rodar para confirmar que falham**
 
 ```bash
 npx vitest run src/__tests__/actions/salvarLancamento.test.ts
@@ -471,7 +471,7 @@ npx vitest run src/__tests__/actions/salvarLancamento.test.ts
 
 Saída esperada: FAIL — `salvarLancamento` não encontrada.
 
-- [ ] **Step 3: Criar `src/app/(protected)/lancamento/actions.ts`**
+- [x] **Step 3: Criar `src/app/(protected)/lancamento/actions.ts`**
 
 ```ts
 'use server'
@@ -538,7 +538,7 @@ export async function salvarLancamento(
 }
 ```
 
-- [ ] **Step 4: Rodar os testes**
+- [x] **Step 4: Rodar os testes**
 
 ```bash
 npx vitest run src/__tests__/actions/salvarLancamento.test.ts
@@ -546,14 +546,14 @@ npx vitest run src/__tests__/actions/salvarLancamento.test.ts
 
 Saída esperada: 8 passed.
 
-- [ ] **Step 5: Remover arquivos substituídos**
+- [x] **Step 5: Remover arquivos substituídos**
 
 ```bash
 rm src/app/(protected)/dashboard/actions.ts
 rm src/__tests__/actions/registerSale.test.ts
 ```
 
-- [ ] **Step 6: Rodar todos os testes**
+- [x] **Step 6: Rodar todos os testes**
 
 ```bash
 npm run test
@@ -561,7 +561,7 @@ npm run test
 
 Saída esperada: todos passam (exceto erros de import de `registerSale` se houver — serão corrigidos na próxima task).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/app/(protected)/lancamento/actions.ts src/__tests__/actions/salvarLancamento.test.ts
@@ -578,7 +578,7 @@ git commit -m "feat: add salvarLancamento server action with upsert and validati
 
 O LancamentoForm é um Client Component puro — não faz fetch, apenas gerencia o estado local dos campos e exibe os totais ao vivo.
 
-- [ ] **Step 1: Criar `src/app/(protected)/lancamento/LancamentoForm.tsx`**
+- [x] **Step 1: Criar `src/app/(protected)/lancamento/LancamentoForm.tsx`**
 
 ```tsx
 'use client'
@@ -705,7 +705,7 @@ export function LancamentoForm({ produtos, dateStr, initialQtds }: LancamentoFor
 }
 ```
 
-- [ ] **Step 2: Verificar que o TypeScript compila sem erros**
+- [x] **Step 2: Verificar que o TypeScript compila sem erros**
 
 ```bash
 npx tsc --noEmit
@@ -713,7 +713,7 @@ npx tsc --noEmit
 
 Saída esperada: sem erros relacionados a `LancamentoForm`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/(protected)/lancamento/LancamentoForm.tsx
@@ -727,7 +727,7 @@ git commit -m "feat: add LancamentoForm client component with stepper and live t
 **Files:**
 - Create: `src/app/(protected)/lancamento/page.tsx`
 
-- [ ] **Step 1: Criar `src/app/(protected)/lancamento/page.tsx`**
+- [x] **Step 1: Criar `src/app/(protected)/lancamento/page.tsx`**
 
 ```tsx
 import { getServerSession } from 'next-auth'
@@ -805,7 +805,7 @@ export default async function LancamentoPage({ searchParams }: Props) {
 }
 ```
 
-- [ ] **Step 2: Adicionar `/lancamento` ao proxy (proteção de rota)**
+- [x] **Step 2: Adicionar `/lancamento` ao proxy (proteção de rota)**
 
 Em `src/proxy.ts`, adicionar `/lancamento/:path*` ao `matcher`:
 
@@ -821,13 +821,13 @@ export const config = {
 }
 ```
 
-- [ ] **Step 3: Verificar que o TypeScript compila**
+- [x] **Step 3: Verificar que o TypeScript compila**
 
 ```bash
 npx tsc --noEmit
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/(protected)/lancamento/page.tsx src/proxy.ts
@@ -844,7 +844,7 @@ git commit -m "feat: add /lancamento page with date param and pre-filled quantit
 
 O dashboard deixa de mostrar botões de produto. Passa a exibir: card de hoje (faturamento + lucro) + botão "Lançar vendas de hoje" + lista de dias anteriores.
 
-- [ ] **Step 1: Atualizar `src/app/(protected)/dashboard/page.tsx`**
+- [x] **Step 1: Atualizar `src/app/(protected)/dashboard/page.tsx`**
 
 Substituir o conteúdo completo:
 
@@ -959,13 +959,13 @@ export default async function DashboardPage() {
 }
 ```
 
-- [ ] **Step 2: Remover `ProductButton.tsx`**
+- [x] **Step 2: Remover `ProductButton.tsx`**
 
 ```bash
 rm src/app/(protected)/dashboard/ProductButton.tsx
 ```
 
-- [ ] **Step 3: Rodar todos os testes**
+- [x] **Step 3: Rodar todos os testes**
 
 ```bash
 npm run test
@@ -973,7 +973,7 @@ npm run test
 
 Saída esperada: todos passam.
 
-- [ ] **Step 4: Verificar TypeScript**
+- [x] **Step 4: Verificar TypeScript**
 
 ```bash
 npx tsc --noEmit
@@ -981,7 +981,7 @@ npx tsc --noEmit
 
 Saída esperada: sem erros.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git rm src/app/(protected)/dashboard/ProductButton.tsx
@@ -993,7 +993,7 @@ git commit -m "feat: redesign dashboard as daily summary with lancamento CTA"
 
 ## Task 9: Verificação final
 
-- [ ] **Step 1: Rodar todos os testes**
+- [x] **Step 1: Rodar todos os testes**
 
 ```bash
 npm run test
@@ -1001,7 +1001,7 @@ npm run test
 
 Saída esperada: todos passam.
 
-- [ ] **Step 2: Build de produção**
+- [x] **Step 2: Build de produção**
 
 ```bash
 npm run build
@@ -1009,7 +1009,7 @@ npm run build
 
 Saída esperada: build sem erros.
 
-- [ ] **Step 3: Testar no navegador (dev server)**
+- [x] **Step 3: Testar no navegador (dev server)**
 
 ```bash
 npm run dev
@@ -1023,7 +1023,7 @@ Verificar:
 - Voltar ao dashboard mostra os valores atualizados
 - Dias anteriores aparecem na lista quando existem lançamentos
 
-- [ ] **Step 4: Commit final**
+- [x] **Step 4: Commit final**
 
 Se algum ajuste visual foi feito:
 
