@@ -39,18 +39,18 @@ NEXTAUTH_URL="http://localhost:3000"
 **Data model** (three entities, all scoped to a `userId`):
 - `User` → `Product[]` + `Sale[]`
 - `Product` (name, price, cost) → `Sale[]`
-- `Sale` records a single product sale at `product.price` at creation time
+- `Sale` — **aggregate per product/day**: `(userId, productId, date)` is unique. Stores `quantity`, `unitPrice` and `unitCost` snapshots. One row per product per day, not per unit sold.
 
 **Route groups:**
 - `(auth)` — unauthenticated pages: `/login`, `/register`
-- `/dashboard` — main sales interface; sales are recorded via Server Action (`registerSale` in [src/app/dashboard/actions.ts](src/app/dashboard/actions.ts))
+- `/dashboard` — summary: today's revenue+profit card + list of past days
+- `/lancamento` — end-of-day entry screen; `?data=YYYY-MM-DD` opens a past day for editing; sales saved via Server Action (`salvarLancamento` in [src/app/(protected)/lancamento/actions.ts](src/app/(protected)/lancamento/actions.ts))
 - `/products` — product listing and creation
 - `api/` — REST endpoints for products, sales, and today's sales summary
 
 **API endpoints:**
 - `GET/POST /api/products` — list/create user's products
-- `POST /api/sales` — record a sale
-- `GET /api/sales/today` — today's sales list + total (uses `calcularTotalDia` from [src/lib/totals.ts](src/lib/totals.ts))
+- `GET /api/sales/today` — today's sales list + `{ faturamento, lucro }` (uses `calcularResumo` from [src/lib/totals.ts](src/lib/totals.ts))
 - `POST /api/register` — create new user account
 
 **Testing:** Vitest with `jsdom` environment. `src/__tests__/setup.ts` globally mocks `@/lib/prisma`, so all tests use `vi.fn()` stubs for Prisma — no real database is required. Path alias `@` maps to `src/`.
