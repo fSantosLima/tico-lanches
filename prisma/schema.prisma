@@ -34,6 +34,12 @@ model Sale {
   product   Product  @relation(fields: [productId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  value     Float
+  date      DateTime @db.Date
+  quantity  Int
+  unitPrice Float
+  unitCost  Float
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId, date])
 }
