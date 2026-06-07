@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { adicionarGasto, removerGasto } from './actions'
+import { DateInput } from '@/components/DateInput'
 
 interface Props {
   searchParams: Promise<{ de?: string; ate?: string }>
@@ -56,8 +57,7 @@ export default async function GastosPage({ searchParams }: Props) {
       <form method="GET" className="flex flex-wrap gap-3 mb-6 items-end">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500 dark:text-slate-400">De</label>
-          <input
-            type="date"
+          <DateInput
             name="de"
             defaultValue={deStr}
             max={today}
@@ -66,8 +66,7 @@ export default async function GastosPage({ searchParams }: Props) {
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500 dark:text-slate-400">Até</label>
-          <input
-            type="date"
+          <DateInput
             name="ate"
             defaultValue={ateStr}
             max={today}
@@ -91,8 +90,7 @@ export default async function GastosPage({ searchParams }: Props) {
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-gray-500 dark:text-slate-400">Data</label>
-            <input
-              type="date"
+            <DateInput
               name="date"
               defaultValue={today}
               max={today}
