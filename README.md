@@ -17,6 +17,7 @@ O fluxo principal: criar conta → cadastrar produtos → lançar quantidades ve
 | Banco de dados | PostgreSQL |
 | Autenticação | NextAuth.js v4 (Credentials Provider) |
 | Testes | Vitest + jsdom |
+| Date Picker | react-datepicker + date-fns (locale pt-BR) |
 
 ---
 
@@ -88,12 +89,13 @@ flowchart LR
     AppRouter --> Dashboard["/dashboard"]
     AppRouter --> Lancamento["/lancamento"]
     AppRouter --> Products["/products"]
+    AppRouter --> Gastos["/gastos"]
     AppRouter --> API["API Routes\n/api/*"]
     API --> Prisma["PrismaClient\nsrc/lib/prisma.ts"]
     Prisma --> DB[("PostgreSQL")]
 ```
 
-- `src/proxy.ts` usa `withAuth` do NextAuth para proteger `/dashboard`, `/products` e `/lancamento`
+- `src/proxy.ts` usa `withAuth` do NextAuth para proteger `/dashboard`, `/products`, `/lancamento` e `/gastos`
 - Server Actions (ex: `salvarLancamento`) validam sessão via `getServerSession` antes de qualquer operação
 - O singleton do PrismaClient usa o driver adapter `@prisma/adapter-pg` (não a conexão TCP padrão)
 
@@ -129,13 +131,27 @@ erDiagram
         DateTime createdAt
         DateTime updatedAt
     }
+    Expense {
+        String id PK
+        String userId FK
+        DateTime date "apenas a data (sem hora)"
+        String category
+        String description
+        Float quantity
+        String unit
+        Float value
+        DateTime createdAt
+    }
 
     User ||--o{ Product : "possui"
     User ||--o{ Sale : "registra"
+    User ||--o{ Expense : "registra"
     Product ||--o{ Sale : "é vendido em"
 ```
 
 > `Sale` é um agregado por produto/dia — 1 linha por produto por data. `(userId, productId, date)` é único. `unitPrice` e `unitCost` são snapshots tirados no momento do lançamento; edições futuras de preço não afetam o histórico.
+>
+> `Expense` registra gastos operacionais (ingredientes, descartáveis, etc.) por data, com categoria, descrição, quantidade e valor.
 
 ---
 
@@ -179,7 +195,7 @@ sequenceDiagram
     end
 ```
 
-Rotas protegidas por `src/proxy.ts`: `/dashboard`, `/products`, `/lancamento`. Usuários não autenticados são redirecionados para `/login`.
+Rotas protegidas por `src/proxy.ts`: `/dashboard`, `/products`, `/lancamento`, `/gastos`. Usuários não autenticados são redirecionados para `/login`.
 
 ---
 
@@ -202,7 +218,11 @@ sistema-lanches/
 │   │   │   ├── lancamento/
 │   │   │   │   ├── page.tsx       # Server Component: carrega produtos e lançamentos do dia
 │   │   │   │   ├── LancamentoForm.tsx  # Client Component: − / + com totais ao vivo
+│   │   │   │   ├── DatePicker.tsx  # Client Component: seletor de data (react-datepicker, pt-BR)
 │   │   │   │   └── actions.ts     # Server Action: salvarLancamento
+│   │   │   ├── gastos/
+│   │   │   │   ├── page.tsx       # Server Component: filtro, formulário e lista de gastos
+│   │   │   │   └── actions.ts     # Server Actions: adicionarGasto, removerGasto
 │   │   │   └── products/
 │   │   │       ├── page.tsx       # Lista de produtos
 │   │   │       └── new/page.tsx   # Formulário de criação
@@ -213,6 +233,10 @@ sistema-lanches/
 │   │       └── sales/
 │   │           ├── route.ts       # (tombstone — POST removido)
 │   │           └── today/route.ts # GET: vendas do dia + faturamento + lucro
+│   ├── components/
+│   │   ├── Sidebar.tsx            # Navegação lateral
+│   │   ├── ThemeToggle.tsx        # Botão claro/escuro
+│   │   └── DateInput.tsx          # Client Component: input de data com react-datepicker (pt-BR)
 │   ├── lib/
 │   │   ├── prisma.ts              # Singleton PrismaClient (driver adapter pg)
 │   │   ├── auth.ts                # Config NextAuth
@@ -221,7 +245,9 @@ sistema-lanches/
 │   └── __tests__/
 │       ├── setup.ts               # Mock global do Prisma
 │       ├── actions/
-│       │   └── salvarLancamento.test.ts
+│       │   ├── salvarLancamento.test.ts
+│       │   ├── adicionarGasto.test.ts
+│       │   └── removerGasto.test.ts
 │       ├── api/
 │       │   ├── products.test.ts
 │       │   ├── sales.test.ts
@@ -249,12 +275,14 @@ npx vitest run src/__tests__/lib/totals.test.ts            # arquivo específico
 | Arquivo | O que cobre |
 |---------|-------------|
 | `actions/salvarLancamento.test.ts` | Auth, upsert com snapshot, quantity=0 remove, validação de data futura/negativo/decimal, isolamento por userId |
+| `actions/adicionarGasto.test.ts` | Auth, validação de data futura, valor/quantidade <= 0, campos ausentes, persistência com userId |
+| `actions/removerGasto.test.ts` | Auth, gasto inexistente, gasto de outro usuário, deleção bem-sucedida |
 | `api/products.test.ts` | GET (filtro por usuário) e POST (validação + criação) |
 | `api/register.test.ts` | POST /api/register — criação de conta e validação de duplicatas |
 | `api/sales.test.ts` | GET /api/sales/today — 401, faturamento+lucro calculados, zeros sem vendas |
 | `lib/totals.test.ts` | `calcularResumo()` — lista vazia, faturamento, lucro, margem zero |
 
-O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer banco de dados real. **31 testes, 5 arquivos.**
+O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer banco de dados real. **41 testes, 7 arquivos.**
 
 ---
 
@@ -263,7 +291,7 @@ O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer
 | Sprint | Status | Funcionalidades |
 |--------|--------|----------------|
 | Sprint 1 | ✅ Concluído | Login, cadastro, produtos, lançamento por quantidade, faturamento + lucro do dia, dark mode, responsivo |
-| Sprint 2 | 🔜 Planejado | Seletor de data no lançamento (trocar data), demais funcionalidades a definir |
+| Sprint 2 | ✅ Concluído | Seletor de data no lançamento (react-datepicker, pt-BR), gestão de gastos com filtro por período e agrupamento por categoria |
 
 ---
 

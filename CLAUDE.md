@@ -36,17 +36,23 @@ NEXTAUTH_URL="http://localhost:3000"
 
 **Authentication** uses NextAuth v4 with JWT strategy and a credentials provider (email/bcrypt password). The config lives in [src/lib/auth.ts](src/lib/auth.ts) and is mounted at `src/app/api/auth/[...nextauth]/route.ts`. Route protection uses Next.js proxy in [src/proxy.ts](src/proxy.ts) via `withAuth({ pages: { signIn: '/login' } })`, which redirects unauthenticated requests on `/dashboard` and `/products` to the custom login page.
 
-**Data model** (three entities, all scoped to a `userId`):
-- `User` → `Product[]` + `Sale[]`
+**Data model** (four entities, all scoped to a `userId`):
+- `User` → `Product[]` + `Sale[]` + `Expense[]`
 - `Product` (name, price, cost) → `Sale[]`
 - `Sale` — **aggregate per product/day**: `(userId, productId, date)` is unique. Stores `quantity`, `unitPrice` and `unitCost` snapshots. One row per product per day, not per unit sold.
+- `Expense` — operational costs (ingredients, disposables, etc.) with `date`, `category`, `description`, `quantity`, `unit`, `value`. Categories: `Ingredientes`, `Descartáveis`, `Salgados prontos`, `Outros`.
 
 **Route groups:**
 - `(auth)` — unauthenticated pages: `/login`, `/register`
 - `/dashboard` — summary: today's revenue+profit card + list of past days
-- `/lancamento` — end-of-day entry screen; `?data=YYYY-MM-DD` opens a past day for editing; sales saved via Server Action (`salvarLancamento` in [src/app/(protected)/lancamento/actions.ts](src/app/(protected)/lancamento/actions.ts))
+- `/lancamento` — end-of-day entry screen; `?data=YYYY-MM-DD` opens a past day for editing; sales saved via Server Action (`salvarLancamento` in [src/app/(protected)/lancamento/actions.ts](src/app/(protected)/lancamento/actions.ts)); date selector uses `DatePicker` component (`react-datepicker` with pt-BR locale)
+- `/gastos` — expense management: filter by period, add/remove expenses grouped by category; uses `DateInput` component for date fields; Server Actions: `adicionarGasto`, `removerGasto`
 - `/products` — product listing and creation
 - `api/` — REST endpoints for products, sales, and today's sales summary
+
+**Date components** (both use `react-datepicker` v9 + `date-fns` pt-BR locale for browser-independent Portuguese calendar):
+- `src/components/DateInput.tsx` — reusable date input for forms; renders a hidden `<input type="hidden">` with ISO value for Server Actions
+- `src/app/(protected)/lancamento/DatePicker.tsx` — date selector in the lancamento header; navigates to `?data=YYYY-MM-DD` on change. **Must be wrapped in a `<div>`** — react-datepicker renders a Fragment and adding it directly inside a `justify-between` flex container shifts the reference element to center, breaking popup positioning.
 
 **API endpoints:**
 - `GET/POST /api/products` — list/create user's products
