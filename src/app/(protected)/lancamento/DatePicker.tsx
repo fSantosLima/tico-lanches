@@ -4,24 +4,13 @@ import ReactDatePicker, { registerLocale } from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { ptBR } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
+import { isoToDate, dateToIso } from '@/lib/dateUtils'
 
 registerLocale('pt-BR', ptBR)
 
 interface DatePickerProps {
   currentDate: string  // 'YYYY-MM-DD'
   today: string        // 'YYYY-MM-DD'
-}
-
-function isoToDate(iso: string): Date {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d)
-}
-
-function dateToIso(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
 }
 
 export function DatePicker({ currentDate, today }: DatePickerProps) {
@@ -44,7 +33,7 @@ export function DatePicker({ currentDate, today }: DatePickerProps) {
         customInput={
           <button type="button" className="text-orange-500 text-sm font-medium">
             {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-              .format(isoToDate(currentDate))}
+              .format(isoToDate(currentDate)!)}
           </button>
         }
       />

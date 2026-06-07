@@ -56,4 +56,6 @@ model Expense {
   unit        String
   value       Float
   createdAt   DateTime @default(now())
+
+  @@index([userId, date])
 }
