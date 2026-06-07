@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { LancamentoForm } from './LancamentoForm'
+import { DatePicker } from './DatePicker'
 import Link from 'next/link'
 
 interface Props {
@@ -48,7 +49,7 @@ export default async function LancamentoPage({ searchParams }: Props) {
         <h1 className="text-xl font-bold dark:text-slate-100">
           Vendas · {dateLabel}
         </h1>
-        <Link href="#" className="text-orange-500 text-sm font-medium">trocar data</Link>
+        <DatePicker currentDate={dateStr} today={today} />
       </div>
 
       {produtos.length === 0 ? (
