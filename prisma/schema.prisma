@@ -14,6 +14,7 @@ model User {
   password  String
   products  Product[]
   sales     Sale[]
+  expenses  Expense[]
   createdAt DateTime  @default(now())
 }
 
@@ -42,4 +43,17 @@ model Sale {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, productId, date])
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime @db.Date
+  category    String
+  description String
+  quantity    Float
+  unit        String
+  value       Float
+  createdAt   DateTime @default(now())
 }
