@@ -17,14 +17,14 @@ async function importAction() {
 beforeEach(() => vi.clearAllMocks())
 
 describe('adicionarGasto', () => {
-  it('lança erro se não autenticado', async () => {
+  it('retorna erro se não autenticado', async () => {
     vi.mocked(getServerSession).mockResolvedValue(null)
     const adicionarGasto = await importAction()
     const fd = new FormData()
-    await expect(adicionarGasto(fd)).rejects.toThrow('Não autorizado')
+    await expect(adicionarGasto(null, fd)).resolves.toEqual({ error: 'Não autorizado' })
   })
 
-  it('lança erro se data é futura', async () => {
+  it('retorna erro se data é futura', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     const adicionarGasto = await importAction()
     const tomorrow = new Date()
@@ -36,10 +36,23 @@ describe('adicionarGasto', () => {
     fd.set('quantity', '3')
     fd.set('unit', 'kg')
     fd.set('value', '90')
-    await expect(adicionarGasto(fd)).rejects.toThrow('Data inválida')
+    await expect(adicionarGasto(null, fd)).resolves.toEqual({ error: 'Data inválida' })
   })
 
-  it('lança erro se value <= 0', async () => {
+  it('retorna erro se category inválida', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    const adicionarGasto = await importAction()
+    const fd = new FormData()
+    fd.set('date', '2026-06-07')
+    fd.set('category', 'Categoria Inválida')
+    fd.set('description', 'Frango')
+    fd.set('quantity', '3')
+    fd.set('unit', 'kg')
+    fd.set('value', '90')
+    await expect(adicionarGasto(null, fd)).resolves.toEqual({ error: 'Categoria inválida' })
+  })
+
+  it('retorna erro se value <= 0', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     const adicionarGasto = await importAction()
     const fd = new FormData()
@@ -49,10 +62,10 @@ describe('adicionarGasto', () => {
     fd.set('quantity', '3')
     fd.set('unit', 'kg')
     fd.set('value', '0')
-    await expect(adicionarGasto(fd)).rejects.toThrow('Valor inválido')
+    await expect(adicionarGasto(null, fd)).resolves.toEqual({ error: 'Valor inválido' })
   })
 
-  it('lança erro se quantity <= 0', async () => {
+  it('retorna erro se quantity <= 0', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     const adicionarGasto = await importAction()
     const fd = new FormData()
@@ -62,10 +75,10 @@ describe('adicionarGasto', () => {
     fd.set('quantity', '0')
     fd.set('unit', 'kg')
     fd.set('value', '90')
-    await expect(adicionarGasto(fd)).rejects.toThrow('Quantidade inválida')
+    await expect(adicionarGasto(null, fd)).resolves.toEqual({ error: 'Quantidade inválida' })
   })
 
-  it('lança erro se campo obrigatório ausente', async () => {
+  it('retorna erro se campo obrigatório ausente', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     const adicionarGasto = await importAction()
     const fd = new FormData()
@@ -75,10 +88,10 @@ describe('adicionarGasto', () => {
     fd.set('quantity', '3')
     fd.set('unit', 'kg')
     fd.set('value', '90')
-    await expect(adicionarGasto(fd)).rejects.toThrow('Campos obrigatórios ausentes')
+    await expect(adicionarGasto(null, fd)).resolves.toEqual({ error: 'Campos obrigatórios ausentes' })
   })
 
-  it('persiste o gasto com userId da sessão', async () => {
+  it('persiste o gasto com userId da sessão e retorna null', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     vi.mocked(prisma.expense.create).mockResolvedValue({} as any)
     const adicionarGasto = await importAction()
@@ -89,7 +102,8 @@ describe('adicionarGasto', () => {
     fd.set('quantity', '3')
     fd.set('unit', 'kg')
     fd.set('value', '90')
-    await adicionarGasto(fd)
+    const result = await adicionarGasto(null, fd)
+    expect(result).toBeNull()
     expect(prisma.expense.create).toHaveBeenCalledWith({
       data: {
         userId: 'user-1',
