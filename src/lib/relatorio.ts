@@ -40,7 +40,8 @@ export interface Relatorio {
 
 // Segunda-feira (UTC) da semana de `d`, à meia-noite UTC.
 function inicioSemanaUTC(d: Date): Date {
-  const dow = (d.getUTCDay() + 6) % 7 // 0 = segunda
+  // getUTCDay() usa domingo=0; re-indexa para segunda=0 ... domingo=6.
+  const dow = (d.getUTCDay() + 6) % 7
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - dow))
 }
 
@@ -49,7 +50,14 @@ function chave(d: Date): string {
 }
 
 export function calcularRelatorio(input: RelatorioInput): Relatorio {
-  const { sales, expenses, inicio, fim } = input
+  const { inicio, fim } = input
+
+  // Considera apenas itens dentro de [inicio, fim]. Torna a função auto-contida:
+  // os totais e a soma das semanas ficam sempre consistentes, mesmo que o
+  // chamador passe dados fora do período.
+  const dentro = (d: Date) => d.getTime() >= inicio.getTime() && d.getTime() <= fim.getTime()
+  const sales = input.sales.filter(v => dentro(v.date))
+  const expenses = input.expenses.filter(e => dentro(e.date))
 
   const faturamento = sales.reduce((s, v) => s + v.quantity * v.unitPrice, 0)
   const gastos = expenses.reduce((s, e) => s + e.value, 0)

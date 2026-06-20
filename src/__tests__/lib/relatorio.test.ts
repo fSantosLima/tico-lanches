@@ -17,6 +17,24 @@ describe('calcularRelatorio — faturamento e gastos', () => {
     expect(r.lucroReal).toBe(0)
     expect(r.margem).toBe(0)
     expect(r.gastosPorCategoria).toEqual([])
+    // O intervalo padrão (01/06–28/06) tem 4 semanas, todas zeradas.
+    expect(r.lucroPorSemana).toHaveLength(4)
+    expect(r.lucroPorSemana.every(w => w.faturamento === 0 && w.gastos === 0 && w.lucroReal === 0)).toBe(true)
+  })
+
+  it('ignora itens fora de [inicio, fim] (função auto-contida)', () => {
+    const r = calcularRelatorio(base({
+      sales: [
+        { quantity: 1, unitPrice: 100, date: utc(2026, 5, 15) }, // dentro
+        { quantity: 1, unitPrice: 999, date: utc(2026, 4, 31) }, // antes do início
+        { quantity: 1, unitPrice: 999, date: utc(2026, 6, 1) },  // depois do fim
+      ],
+      expenses: [{ value: 999, category: 'Outros', date: utc(2026, 6, 1) }], // fora
+    }))
+    expect(r.faturamento).toBeCloseTo(100)
+    expect(r.gastos).toBe(0)
+    const somaSemanal = r.lucroPorSemana.reduce((s, w) => s + w.lucroReal, 0)
+    expect(somaSemanal).toBeCloseTo(r.lucroReal)
   })
 
   it('só vendas → gastos 0, lucroReal = faturamento, margem 1', () => {
