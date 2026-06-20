@@ -42,6 +42,11 @@ describe('resolverPeriodo', () => {
       .toEqual({ de: '2026-06-01', ate: '2026-06-20' })
   })
 
+  it('formato ISO mas data de calendário impossível → cai no default', () => {
+    expect(resolverPeriodo({ de: '2026-13-99', ate: '2026-02-30' }, HOJE))
+      .toEqual({ de: '2026-06-01', ate: '2026-06-20' })
+  })
+
   it('apenas um param presente → cai no default', () => {
     expect(resolverPeriodo({ de: '2026-06-03' }, HOJE))
       .toEqual({ de: '2026-06-01', ate: '2026-06-20' })

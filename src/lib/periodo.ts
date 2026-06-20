@@ -4,16 +4,26 @@ function iso(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 
+// Valida formato ISO E data de calendário real (rejeita 2026-13-99, 2026-02-30, etc.).
+// O round-trip via toISOString pega rollovers silenciosos do construtor Date.
+function dataValida(s: string | undefined): s is string {
+  if (!s || !ISO_RE.test(s)) return false
+  const d = new Date(s + 'T00:00:00Z')
+  return !Number.isNaN(d.getTime()) && iso(d) === s
+}
+
 export type Preset = 'semana' | 'mes' | 'mes-passado'
 
 export function intervaloPreset(preset: Preset, hoje: Date): { de: string; ate: string } {
   const y = hoje.getUTCFullYear()
   const m = hoje.getUTCMonth()
   const d = hoje.getUTCDate()
-  const ate = iso(new Date(Date.UTC(y, m, d)))
+  const hojeUTC = new Date(Date.UTC(y, m, d))
+  const ate = iso(hojeUTC)
 
   if (preset === 'semana') {
-    const dow = (new Date(Date.UTC(y, m, d)).getUTCDay() + 6) % 7 // 0 = segunda
+    // 'semana' vai da segunda-feira da semana corrente até HOJE (não até o domingo).
+    const dow = (hojeUTC.getUTCDay() + 6) % 7 // 0 = segunda
     return { de: iso(new Date(Date.UTC(y, m, d - dow))), ate }
   }
   if (preset === 'mes') {
@@ -29,12 +39,9 @@ export function resolverPeriodo(
   params: { de?: string; ate?: string },
   hoje: Date,
 ): { de: string; ate: string } {
-  const deOk = !!params.de && ISO_RE.test(params.de)
-  const ateOk = !!params.ate && ISO_RE.test(params.ate)
-
-  if (deOk && ateOk) {
-    let de = params.de!
-    let ate = params.ate!
+  if (dataValida(params.de) && dataValida(params.ate)) {
+    let de = params.de
+    let ate = params.ate
     if (de > ate) [de, ate] = [ate, de] // strings ISO comparam lexicograficamente
     return { de, ate }
   }
