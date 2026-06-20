@@ -14,8 +14,8 @@ export function Tabs({ tab, de, ate }: Props) {
   }
   return (
     <div className="flex border-b dark:border-slate-700">
-      <Link href={`/relatorios?de=${de}&ate=${ate}&tab=resumo`} className={cls('resumo')}>Resumo</Link>
-      <Link href={`/relatorios?de=${de}&ate=${ate}&tab=graficos`} className={cls('graficos')}>Gráficos</Link>
+      <Link href={`/relatorios?de=${de}&ate=${ate}&tab=resumo`} className={cls('resumo')} aria-current={tab === 'resumo' ? 'page' : undefined}>Resumo</Link>
+      <Link href={`/relatorios?de=${de}&ate=${ate}&tab=graficos`} className={cls('graficos')} aria-current={tab === 'graficos' ? 'page' : undefined}>Gráficos</Link>
     </div>
   )
 }

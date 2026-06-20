@@ -80,7 +80,7 @@ function Kpi({ label, value, highlight }: { label: string; value: string; highli
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4">
       <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">{label}</p>
-      <p className={`text-lg font-bold ${highlight ? 'text-green-600' : 'dark:text-slate-100'}`}>{value}</p>
+      <p className={`text-lg font-bold ${highlight ? 'text-green-600' : 'text-gray-900 dark:text-slate-100'}`}>{value}</p>
     </div>
   )
 }
