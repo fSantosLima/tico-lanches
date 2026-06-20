@@ -32,6 +32,9 @@ export function Sidebar() {
         <Link href="/gastos" className={navClass('/gastos')}>
           Gastos
         </Link>
+        <Link href="/relatorios" className={navClass('/relatorios')}>
+          Relatórios
+        </Link>
       </nav>
 
       <div className="mt-auto">

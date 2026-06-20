@@ -18,6 +18,7 @@ O fluxo principal: criar conta → cadastrar produtos → lançar quantidades ve
 | Autenticação | NextAuth.js v4 (Credentials Provider) |
 | Testes | Vitest + jsdom |
 | Date Picker | react-datepicker + date-fns (locale pt-BR) |
+| Gráficos | Recharts |
 
 ---
 
@@ -90,12 +91,13 @@ flowchart LR
     AppRouter --> Lancamento["/lancamento"]
     AppRouter --> Products["/products"]
     AppRouter --> Gastos["/gastos"]
+    AppRouter --> Relatorios["/relatorios"]
     AppRouter --> API["API Routes\n/api/*"]
     API --> Prisma["PrismaClient\nsrc/lib/prisma.ts"]
     Prisma --> DB[("PostgreSQL")]
 ```
 
-- `src/proxy.ts` usa `withAuth` do NextAuth para proteger `/dashboard`, `/products`, `/lancamento` e `/gastos`
+- `src/proxy.ts` usa `withAuth` do NextAuth para proteger `/dashboard`, `/products`, `/lancamento`, `/gastos` e `/relatorios`
 - Server Actions (ex: `salvarLancamento`) validam sessão via `getServerSession` antes de qualquer operação
 - O singleton do PrismaClient usa o driver adapter `@prisma/adapter-pg` (não a conexão TCP padrão)
 
@@ -195,7 +197,7 @@ sequenceDiagram
     end
 ```
 
-Rotas protegidas por `src/proxy.ts`: `/dashboard`, `/products`, `/lancamento`, `/gastos`. Usuários não autenticados são redirecionados para `/login`.
+Rotas protegidas por `src/proxy.ts`: `/dashboard`, `/products`, `/lancamento`, `/gastos`, `/relatorios`. Usuários não autenticados são redirecionados para `/login`.
 
 ---
 
@@ -223,6 +225,12 @@ sistema-lanches/
 │   │   │   ├── gastos/
 │   │   │   │   ├── page.tsx       # Server Component: filtro, formulário e lista de gastos
 │   │   │   │   └── actions.ts     # Server Actions: adicionarGasto, removerGasto
+│   │   │   ├── relatorios/
+│   │   │   │   ├── page.tsx       # Server Component: período, KPIs, abas Resumo/Gráficos
+│   │   │   │   ├── FiltroPeriodo.tsx  # Client Component: presets + intervalo De/Até
+│   │   │   │   ├── Tabs.tsx       # Abas Resumo / Gráficos (links na URL)
+│   │   │   │   ├── GraficoRosca.tsx   # Client Component: rosca de gastos por categoria (Recharts)
+│   │   │   │   └── GraficoLinha.tsx   # Client Component: linha de lucro real por semana (Recharts)
 │   │   │   └── products/
 │   │   │       ├── page.tsx       # Lista de produtos
 │   │   │       └── new/page.tsx   # Formulário de criação
@@ -240,7 +248,9 @@ sistema-lanches/
 │   ├── lib/
 │   │   ├── prisma.ts              # Singleton PrismaClient (driver adapter pg)
 │   │   ├── auth.ts                # Config NextAuth
-│   │   └── totals.ts              # calcularResumo() — faturamento + lucro
+│   │   ├── totals.ts              # calcularResumo() — faturamento + lucro
+│   │   ├── periodo.ts             # resolverPeriodo() + intervaloPreset() — período do relatório
+│   │   └── relatorio.ts           # calcularRelatorio() — faturamento × gastos, lucro real, por semana
 │   ├── proxy.ts                   # withAuth — proteção de rotas
 │   └── __tests__/
 │       ├── setup.ts               # Mock global do Prisma
@@ -253,7 +263,9 @@ sistema-lanches/
 │       │   ├── sales.test.ts
 │       │   └── register.test.ts
 │       └── lib/
-│           └── totals.test.ts
+│           ├── totals.test.ts
+│           ├── periodo.test.ts
+│           └── relatorio.test.ts
 ├── .env.example                   # Template de variáveis de ambiente
 ├── docs/
 │   └── superpowers/
@@ -281,8 +293,10 @@ npx vitest run src/__tests__/lib/totals.test.ts            # arquivo específico
 | `api/register.test.ts` | POST /api/register — criação de conta e validação de duplicatas |
 | `api/sales.test.ts` | GET /api/sales/today — 401, faturamento+lucro calculados, zeros sem vendas |
 | `lib/totals.test.ts` | `calcularResumo()` — lista vazia, faturamento, lucro, margem zero |
+| `lib/periodo.test.ts` | `resolverPeriodo()` / `intervaloPreset()` — presets, default, intervalo invertido, datas inválidas/impossíveis, virada de ano |
+| `lib/relatorio.test.ts` | `calcularRelatorio()` — faturamento/gastos, lucro real (incl. negativo/zero), margem (divisão por zero), gastos por categoria, agrupamento por semana (limites, semanas vazias, virada de mês), consistência |
 
-O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer banco de dados real. **41 testes, 7 arquivos.**
+O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer banco de dados real. **76 testes, 9 arquivos.**
 
 ---
 
@@ -292,6 +306,7 @@ O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer
 |--------|--------|----------------|
 | Sprint 1 | ✅ Concluído | Login, cadastro, produtos, lançamento por quantidade, faturamento + lucro do dia, dark mode, responsivo |
 | Sprint 2 | ✅ Concluído | Seletor de data no lançamento (react-datepicker, pt-BR), gestão de gastos com filtro por período e agrupamento por categoria |
+| Sprint 3 | ✅ Concluído | Relatório de lucro real em `/relatorios`: cruza faturamento × gastos reais por período (presets + intervalo livre), com aba Resumo (KPIs + gastos por categoria) e aba Gráficos (rosca + linha por semana, Recharts) |
 
 ---
 
