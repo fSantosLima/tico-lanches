@@ -18,6 +18,7 @@ O fluxo principal: criar conta → cadastrar produtos → lançar quantidades ve
 | Autenticação | NextAuth.js v4 (Credentials Provider) |
 | Testes | Vitest + jsdom |
 | Date Picker | react-datepicker + date-fns (locale pt-BR) |
+| Gráficos | Recharts |
 
 ---
 
@@ -292,6 +293,7 @@ O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer
 |--------|--------|----------------|
 | Sprint 1 | ✅ Concluído | Login, cadastro, produtos, lançamento por quantidade, faturamento + lucro do dia, dark mode, responsivo |
 | Sprint 2 | ✅ Concluído | Seletor de data no lançamento (react-datepicker, pt-BR), gestão de gastos com filtro por período e agrupamento por categoria |
+| Sprint 3 | ✅ Concluído | Relatório de lucro real em `/relatorios`: cruza faturamento × gastos reais por período (presets + intervalo livre), com aba Resumo (KPIs + gastos por categoria) e aba Gráficos (rosca + linha por semana, Recharts) |
 
 ---
 

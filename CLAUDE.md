@@ -48,6 +48,7 @@ NEXTAUTH_URL="http://localhost:3000"
 - `/lancamento` — end-of-day entry screen; `?data=YYYY-MM-DD` opens a past day for editing; sales saved via Server Action (`salvarLancamento` in [src/app/(protected)/lancamento/actions.ts](src/app/(protected)/lancamento/actions.ts)); date selector uses `DatePicker` component (`react-datepicker` with pt-BR locale)
 - `/gastos` — expense management: filter by period, add/remove expenses grouped by category; uses `DateInput` component for date fields; Server Actions: `adicionarGasto`, `removerGasto`
 - `/products` — product listing and creation
+- `/relatorios` — period report crossing revenue (`Sale`) with real expenses (`Expense`): KPIs (faturamento, gastos, lucro real, margem), gastos por categoria, and charts (donut + weekly line via Recharts). Period from URL (`?de&ate&tab`); pure aggregation in [src/lib/relatorio.ts](src/lib/relatorio.ts), period parsing in [src/lib/periodo.ts](src/lib/periodo.ts). **Lucro real = faturamento − gastos reais** (does not subtract product `unitCost`, to avoid double counting). Week math uses UTC components (Monday-start), not date-fns, for timezone determinism.
 - `api/` — REST endpoints for products, sales, and today's sales summary
 
 **Date components** (both use `react-datepicker` v9 + `date-fns` pt-BR locale for browser-independent Portuguese calendar):
