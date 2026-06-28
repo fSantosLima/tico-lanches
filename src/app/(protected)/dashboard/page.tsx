@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { calcularResumo } from '@/lib/totals'
+import { calcularEstoque } from '@/lib/estoque'
 import { LogoutButton } from './LogoutButton'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import Link from 'next/link'
@@ -35,6 +36,18 @@ export default async function DashboardPage() {
     porDia.get(key)!.push(s)
   }
 
+  const [produtosEstoque, entradasEstoque, todasVendas] = await Promise.all([
+    prisma.product.findMany({ where: { userId: session!.user.id } }),
+    prisma.stockEntry.findMany({ where: { userId: session!.user.id } }),
+    prisma.sale.findMany({ where: { userId: session!.user.id } }),
+  ])
+
+  const alertasEstoque = calcularEstoque(
+    produtosEstoque.map(p => ({ id: p.id, name: p.name, minStock: p.minStock })),
+    entradasEstoque.map(e => ({ productId: e.productId, quantity: e.quantity })),
+    todasVendas.map(s => ({ productId: s.productId, quantity: s.quantity })),
+  ).filter(item => item.status !== 'ok')
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 lg:p-6">
       <div className="flex justify-between items-center mb-4 lg:hidden">
@@ -60,6 +73,27 @@ export default async function DashboardPage() {
       >
         Lançar vendas de hoje
       </Link>
+
+      {alertasEstoque.length > 0 && (
+        <Link
+          href="/estoque"
+          className="block bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-500/40 rounded-2xl p-4 mb-6 shadow-sm"
+        >
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">
+            ⚠️ Estoque baixo ({alertasEstoque.length})
+          </p>
+          <div className="flex flex-col gap-1">
+            {alertasEstoque.map(item => (
+              <div key={item.productId} className="flex justify-between text-sm">
+                <span className="dark:text-slate-200">{item.nome}</span>
+                <span className={item.saldo < 0 ? 'text-red-500 font-semibold' : 'text-amber-600 dark:text-amber-400 font-semibold'}>
+                  {item.saldo} un.
+                </span>
+              </div>
+            ))}
+          </div>
+        </Link>
+      )}
 
       {porDia.size > 0 && (
         <>
