@@ -58,7 +58,7 @@ export default async function EstoquePage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl font-bold ${item.saldo < 0 ? 'text-red-500' : 'dark:text-slate-100'}`}>
+                  <span className={`text-2xl font-bold ${item.saldo < 0 ? 'text-red-500' : 'text-slate-900 dark:text-slate-100'}`}>
                     {item.saldo}
                   </span>
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full ${badge.className}`}>
