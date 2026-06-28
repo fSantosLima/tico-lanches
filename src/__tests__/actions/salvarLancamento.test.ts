@@ -77,7 +77,7 @@ describe('salvarLancamento', () => {
     ).rejects.toThrow('Produto não encontrado')
   })
 
-  it('revalida dashboard e lancamento após salvar', async () => {
+  it('revalida dashboard, lancamento e estoque após salvar', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     vi.mocked(prisma.product.findFirst).mockResolvedValue(mockProduct as any)
     vi.mocked(prisma.sale.upsert).mockResolvedValue({} as any)
@@ -86,5 +86,6 @@ describe('salvarLancamento', () => {
 
     expect(revalidatePath).toHaveBeenCalledWith('/dashboard')
     expect(revalidatePath).toHaveBeenCalledWith('/lancamento')
+    expect(revalidatePath).toHaveBeenCalledWith('/estoque')
   })
 })

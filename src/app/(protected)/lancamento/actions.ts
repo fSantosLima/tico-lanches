@@ -60,4 +60,5 @@ export async function salvarLancamento(
 
   revalidatePath('/dashboard')
   revalidatePath('/lancamento')
+  revalidatePath('/estoque')
 }
