@@ -2,8 +2,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { calcularEstoque, type EstoqueStatus } from '@/lib/estoque'
-import { removerEntrada, definirEstoqueMinimo } from './actions'
+import { removerEntrada } from './actions'
 import { EntradaForm } from './EntradaForm'
+import { MinimoForm } from './MinimoForm'
 
 const STATUS_BADGE: Record<EstoqueStatus, { label: string; className: string }> = {
   ok: { label: 'OK', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
@@ -64,20 +65,7 @@ export default async function EstoquePage() {
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full ${badge.className}`}>
                     {badge.label}
                   </span>
-                  <form action={definirEstoqueMinimo.bind(null, item.productId)} className="flex items-center gap-1">
-                    <label className="text-xs text-gray-400 dark:text-slate-500">mín.</label>
-                    <input
-                      type="number"
-                      name="minStock"
-                      min="0"
-                      step="1"
-                      defaultValue={item.minimo}
-                      className="w-14 border dark:border-slate-600 rounded-lg px-2 py-1 text-sm dark:bg-slate-900 dark:text-slate-100"
-                    />
-                    <button type="submit" className="text-xs text-orange-500 hover:text-orange-600">
-                      Salvar
-                    </button>
-                  </form>
+                  <MinimoForm productId={item.productId} minimo={item.minimo} />
                 </div>
               </div>
             )
