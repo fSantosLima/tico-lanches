@@ -34,12 +34,13 @@ NEXTAUTH_URL="http://localhost:3000"
 
 **Next.js App Router** with PostgreSQL via Prisma (using the `@prisma/adapter-pg` driver adapter — not the default TCP connection). The singleton client is in [src/lib/prisma.ts](src/lib/prisma.ts).
 
-**Authentication** uses NextAuth v4 with JWT strategy and a credentials provider (email/bcrypt password). The config lives in [src/lib/auth.ts](src/lib/auth.ts) and is mounted at `src/app/api/auth/[...nextauth]/route.ts`. Route protection uses Next.js proxy in [src/proxy.ts](src/proxy.ts) via `withAuth({ pages: { signIn: '/login' } })`, which redirects unauthenticated requests on the protected routes (`/dashboard`, `/products`, `/lancamento`, `/gastos`, `/relatorios`) to the custom login page.
+**Authentication** uses NextAuth v4 with JWT strategy and a credentials provider (email/bcrypt password). The config lives in [src/lib/auth.ts](src/lib/auth.ts) and is mounted at `src/app/api/auth/[...nextauth]/route.ts`. Route protection uses Next.js proxy in [src/proxy.ts](src/proxy.ts) via `withAuth({ pages: { signIn: '/login' } })`, which redirects unauthenticated requests on the protected routes (`/dashboard`, `/products`, `/lancamento`, `/gastos`, `/relatorios`, `/estoque`) to the custom login page.
 
-**Data model** (four entities, all scoped to a `userId`):
-- `User` → `Product[]` + `Sale[]` + `Expense[]`
-- `Product` (name, price, cost) → `Sale[]`
+**Data model** (five entities, all scoped to a `userId`):
+- `User` → `Product[]` + `Sale[]` + `Expense[]` + `StockEntry[]`
+- `Product` (name, price, cost, minStock) → `Sale[]` + `StockEntry[]`
 - `Sale` — **aggregate per product/day**: `(userId, productId, date)` is unique. Stores `quantity`, `unitPrice` and `unitCost` snapshots. One row per product per day, not per unit sold.
+- `StockEntry` — entradas de estoque (reposições/saldo inicial) por produto: `date`, `quantity` (Int), `note?`. O saldo de estoque é derivado: `entradas − vendas (Sale)`.
 - `Expense` — operational costs (ingredients, disposables, etc.) with `date`, `category`, `description`, `quantity`, `unit`, `value`. Categories: `Ingredientes`, `Descartáveis`, `Salgados prontos`, `Outros`.
 
 **Route groups:**
@@ -48,6 +49,7 @@ NEXTAUTH_URL="http://localhost:3000"
 - `/lancamento` — end-of-day entry screen; `?data=YYYY-MM-DD` opens a past day for editing; sales saved via Server Action (`salvarLancamento` in [src/app/(protected)/lancamento/actions.ts](src/app/(protected)/lancamento/actions.ts)); date selector uses `DatePicker` component (`react-datepicker` with pt-BR locale)
 - `/gastos` — expense management: filter by period, add/remove expenses grouped by category; uses `DateInput` component for date fields; Server Actions: `adicionarGasto`, `removerGasto`
 - `/products` — product listing and creation
+- `/estoque` — controle de estoque dos produtos vendáveis: saldo (entradas − vendas), status (ok/baixo/negativo), registro de entradas e ajuste do estoque mínimo inline. Server Actions: `registrarEntrada`, `removerEntrada`, `definirEstoqueMinimo`; agregação pura em [src/lib/estoque.ts](src/lib/estoque.ts). **Lançar venda não é bloqueado por falta de estoque** (saldo pode ficar negativo, apenas alerta). Mínimo 0 não gera alerta de "baixo".
 - `/relatorios` — period report crossing revenue (`Sale`) with real expenses (`Expense`): KPIs (faturamento, gastos, lucro real, margem), gastos por categoria, and charts (donut + weekly line via Recharts). Period from URL (`?de&ate&tab`); pure aggregation in [src/lib/relatorio.ts](src/lib/relatorio.ts), period parsing in [src/lib/periodo.ts](src/lib/periodo.ts). **Lucro real = faturamento − gastos reais** (does not subtract product `unitCost`, to avoid double counting). Week math uses UTC components (Monday-start), not date-fns, for timezone determinism.
 - `api/` — REST endpoints for products, sales, and today's sales summary
 
