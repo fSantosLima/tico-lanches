@@ -6,6 +6,7 @@ vi.mock('@/lib/prisma', () => ({
       findMany: vi.fn(),
       findFirst: vi.fn(),
       create: vi.fn(),
+      updateMany: vi.fn(),
     },
     sale: {
       create: vi.fn(),
@@ -22,6 +23,11 @@ vi.mock('@/lib/prisma', () => ({
       findFirst: vi.fn(),
       findMany: vi.fn(),
       delete: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    stockEntry: {
+      create: vi.fn(),
+      findMany: vi.fn(),
       deleteMany: vi.fn(),
     },
   },

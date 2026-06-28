@@ -87,9 +87,9 @@ describe('POST /api/products', () => {
     expect(res.status).toBe(400)
   })
 
-  it('cria produto e retorna 201', async () => {
+  it('cria produto e retorna 201 (minStock default 0)', async () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
-    const mockProduct = { id: 'p1', name: 'X-Burguer', price: 12.0, cost: 5.0, userId: 'user-1' }
+    const mockProduct = { id: 'p1', name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: 0, userId: 'user-1' }
     vi.mocked(prisma.product.create).mockResolvedValue(mockProduct as any)
 
     const req = new Request('http://localhost/api/products', {
@@ -102,7 +102,41 @@ describe('POST /api/products', () => {
     expect(res.status).toBe(201)
     expect(data).toEqual(mockProduct)
     expect(prisma.product.create).toHaveBeenCalledWith({
-      data: { name: 'X-Burguer', price: 12.0, cost: 5.0, userId: 'user-1' },
+      data: { name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: 0, userId: 'user-1' },
     })
+  })
+
+  it('aceita minStock inteiro e o persiste', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    vi.mocked(prisma.product.create).mockResolvedValue({} as any)
+    const req = new Request('http://localhost/api/products', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: 10 }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(201)
+    expect(prisma.product.create).toHaveBeenCalledWith({
+      data: { name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: 10, userId: 'user-1' },
+    })
+  })
+
+  it('retorna 400 se minStock for negativo ou não inteiro', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    const req = new Request('http://localhost/api/products', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: -3 }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
+
+  it('retorna 400 se minStock não for inteiro', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    const req = new Request('http://localhost/api/products', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: 1.5 }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
   })
 })

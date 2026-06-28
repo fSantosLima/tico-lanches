@@ -10,6 +10,7 @@ export default function NewProductPage() {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const [cost, setCost] = useState('')
+  const [minStock, setMinStock] = useState('0')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -25,6 +26,7 @@ export default function NewProductPage() {
         name,
         price: parseFloat(price),
         cost: parseFloat(cost),
+        minStock: parseInt(minStock || '0', 10),
       }),
     })
 
@@ -88,6 +90,19 @@ export default function NewProductPage() {
             className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
             required
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1 dark:text-slate-100">Estoque mínimo</label>
+          <input
+            type="number"
+            value={minStock}
+            onChange={e => setMinStock(e.target.value)}
+            placeholder="0"
+            step="1"
+            min="0"
+            className="w-full border dark:border-slate-600 rounded-lg px-3 py-3 text-base bg-white dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">0 = sem alerta de estoque baixo</p>
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button

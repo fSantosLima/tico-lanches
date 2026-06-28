@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { name, price, cost } = body
+  const { name, price, cost, minStock } = body
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
     return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
@@ -36,8 +36,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Custo inválido' }, { status: 400 })
   }
 
+  const min = minStock === undefined ? 0 : minStock
+  if (!Number.isInteger(min) || min < 0) {
+    return NextResponse.json({ error: 'Estoque mínimo inválido' }, { status: 400 })
+  }
+
   const product = await prisma.product.create({
-    data: { name: name.trim(), price, cost, userId: session.user.id },
+    data: { name: name.trim(), price, cost, minStock: min, userId: session.user.id },
   })
 
   return NextResponse.json(product, { status: 201 })
