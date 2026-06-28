@@ -8,25 +8,28 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  password  String
-  products  Product[]
-  sales     Sale[]
-  expenses  Expense[]
-  createdAt DateTime  @default(now())
+  id           String       @id @default(uuid())
+  email        String       @unique
+  name         String?
+  password     String
+  products     Product[]
+  sales        Sale[]
+  expenses     Expense[]
+  stockEntries StockEntry[]
+  createdAt    DateTime     @default(now())
 }
 
 model Product {
-  id        String   @id @default(uuid())
-  name      String
-  price     Float
-  cost      Float
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  sales     Sale[]
-  createdAt DateTime @default(now())
+  id           String       @id @default(uuid())
+  name         String
+  price        Float
+  cost         Float
+  minStock     Int          @default(0)
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  sales        Sale[]
+  stockEntries StockEntry[]
+  createdAt    DateTime     @default(now())
 }
 
 model Sale {
@@ -56,6 +59,20 @@ model Expense {
   unit        String
   value       Float
   createdAt   DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model StockEntry {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @db.Date
+  quantity  Int
+  note      String?
+  createdAt DateTime @default(now())
 
   @@index([userId, date])
 }
