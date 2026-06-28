@@ -29,6 +29,9 @@ export function Sidebar() {
         <Link href="/products" className={navClass('/products')}>
           Produtos
         </Link>
+        <Link href="/estoque" className={navClass('/estoque')}>
+          Estoque
+        </Link>
         <Link href="/gastos" className={navClass('/gastos')}>
           Gastos
         </Link>
