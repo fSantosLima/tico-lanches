@@ -129,4 +129,14 @@ describe('POST /api/products', () => {
     const res = await POST(req)
     expect(res.status).toBe(400)
   })
+
+  it('retorna 400 se minStock não for inteiro', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    const req = new Request('http://localhost/api/products', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'X-Burguer', price: 12.0, cost: 5.0, minStock: 1.5 }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
 })
