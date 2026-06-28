@@ -95,7 +95,7 @@ describe('removerEntrada', () => {
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
     vi.mocked(prisma.stockEntry.deleteMany).mockResolvedValue({ count: 0 } as any)
     const { removerEntrada } = await actions()
-    await expect(removerEntrada('e1')).rejects.toThrow('Entrada não encontrada')
+    await expect(removerEntrada('e1')).rejects.toThrow('Entrada não encontrada ou não autorizada')
   })
 
   it('remove a entrada escopada ao userId', async () => {
@@ -137,5 +137,14 @@ describe('definirEstoqueMinimo', () => {
       data: { minStock: 8 },
     })
     expect(revalidatePath).toHaveBeenCalledWith('/estoque')
+  })
+
+  it('lança se produto não encontrado para o usuário', async () => {
+    vi.mocked(getServerSession).mockResolvedValue(mockSession as any)
+    vi.mocked(prisma.product.updateMany).mockResolvedValue({ count: 0 } as any)
+    const { definirEstoqueMinimo } = await actions()
+    const fd = new FormData()
+    fd.set('minStock', '5')
+    await expect(definirEstoqueMinimo('p1', fd)).rejects.toThrow('Produto não encontrado ou não autorizado')
   })
 })
