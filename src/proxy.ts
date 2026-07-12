@@ -5,5 +5,5 @@ export default withAuth({
 })
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/products/:path*', '/lancamento/:path*', '/gastos/:path*', '/relatorios/:path*', '/estoque/:path*'],
+  matcher: ['/dashboard/:path*', '/products/:path*', '/lancamento/:path*', '/gastos/:path*', '/relatorios/:path*', '/estoque/:path*', '/insumos/:path*'],
 }
