@@ -30,5 +30,23 @@ vi.mock('@/lib/prisma', () => ({
       findMany: vi.fn(),
       deleteMany: vi.fn(),
     },
+    insumo: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      updateMany: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    insumoEntry: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    recipeItem: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      deleteMany: vi.fn(),
+    },
   },
 }))
