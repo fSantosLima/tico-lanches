@@ -90,3 +90,45 @@ export function calcularEstoqueInsumos(
 
   return resultado
 }
+
+export interface CustoRealItem {
+  insumoId: string
+  nome: string
+  unidade: string
+  quantidade: number
+  custoUnitario: number
+  subtotal: number
+}
+
+export interface CustoRealProduto {
+  productId: string
+  custoReal: number
+  itens: CustoRealItem[]
+}
+
+export function calcularCustoReal(
+  productId: string,
+  itensReceita: ReceitaItemInput[],
+  insumosPorId: Map<string, InsumoInput>,
+): CustoRealProduto {
+  const itens: CustoRealItem[] = []
+  let custoReal = 0
+
+  for (const r of itensReceita) {
+    if (r.productId !== productId) continue
+    const insumo = insumosPorId.get(r.insumoId)
+    if (!insumo) continue
+    const subtotal = r.quantity * insumo.cost
+    custoReal += subtotal
+    itens.push({
+      insumoId: r.insumoId,
+      nome: insumo.name,
+      unidade: insumo.unit,
+      quantidade: r.quantity,
+      custoUnitario: insumo.cost,
+      subtotal,
+    })
+  }
+
+  return { productId, custoReal, itens }
+}

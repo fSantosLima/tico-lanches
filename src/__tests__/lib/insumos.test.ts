@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcularEstoqueInsumos } from '@/lib/insumos'
+import { calcularEstoqueInsumos, calcularCustoReal } from '@/lib/insumos'
 
 const ins = (id: string, name: string, minStock = 0) => ({ id, name, unit: 'kg', cost: 0, minStock })
 
@@ -127,5 +127,54 @@ describe('calcularEstoqueInsumos', () => {
       ],
     )
     expect(r.map(x => x.nome)).toEqual(['Alface', 'Queijo', 'Carne', 'Bacon'])
+  })
+})
+
+describe('calcularCustoReal', () => {
+  const insumo = (id: string, name: string, cost: number) => ({ id, name, unit: 'kg', cost, minStock: 0 })
+  const mapa = (...arr: { id: string; name: string; unit: string; cost: number; minStock: number }[]) =>
+    new Map(arr.map(i => [i.id, i]))
+
+  it('produto sem receita → custo real 0 e sem itens', () => {
+    const r = calcularCustoReal('p1', [], mapa(insumo('i1', 'Carne', 30)))
+    expect(r).toEqual({ productId: 'p1', custoReal: 0, itens: [] })
+  })
+
+  it('soma os subtotais (quantidade × custo) dos itens do produto', () => {
+    // p1: 0,2 kg Carne (R$ 30/kg) + 1 un Pão (R$ 0,50) = 6 + 0,50 = 6,50
+    const r = calcularCustoReal(
+      'p1',
+      [
+        { productId: 'p1', insumoId: 'i1', quantity: 0.2 },
+        { productId: 'p1', insumoId: 'i2', quantity: 1 },
+      ],
+      mapa(insumo('i1', 'Carne', 30), { id: 'i2', name: 'Pao', unit: 'un', cost: 0.5, minStock: 0 }),
+    )
+    expect(r.custoReal).toBeCloseTo(6.5, 5)
+    expect(r.itens).toHaveLength(2)
+    expect(r.itens[0]).toEqual({ insumoId: 'i1', nome: 'Carne', unidade: 'kg', quantidade: 0.2, custoUnitario: 30, subtotal: 6 })
+  })
+
+  it('ignora itens de receita de outros produtos', () => {
+    const r = calcularCustoReal(
+      'p1',
+      [
+        { productId: 'p1', insumoId: 'i1', quantity: 1 },
+        { productId: 'p2', insumoId: 'i1', quantity: 5 },
+      ],
+      mapa(insumo('i1', 'Carne', 10)),
+    )
+    expect(r.custoReal).toBe(10)
+    expect(r.itens).toHaveLength(1)
+  })
+
+  it('ignora item cujo insumo não está no mapa', () => {
+    const r = calcularCustoReal(
+      'p1',
+      [{ productId: 'p1', insumoId: 'sumiu', quantity: 1 }],
+      mapa(insumo('i1', 'Carne', 10)),
+    )
+    expect(r.custoReal).toBe(0)
+    expect(r.itens).toHaveLength(0)
   })
 })
