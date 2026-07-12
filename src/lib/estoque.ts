@@ -1,3 +1,7 @@
+import { statusEstoque, ORDEM_STATUS, type EstoqueStatus } from './stockStatus'
+
+export type { EstoqueStatus }
+
 export interface EstoqueProductInput {
   id: string
   name: string
@@ -14,8 +18,6 @@ export interface EstoqueSale {
   quantity: number
 }
 
-export type EstoqueStatus = 'ok' | 'baixo' | 'negativo'
-
 export interface EstoqueProduto {
   productId: string
   nome: string
@@ -25,14 +27,6 @@ export interface EstoqueProduto {
   minimo: number
   status: EstoqueStatus
 }
-
-function statusDe(saldo: number, minimo: number): EstoqueStatus {
-  if (saldo < 0) return 'negativo'
-  if (minimo > 0 && saldo <= minimo) return 'baixo'
-  return 'ok'
-}
-
-const ORDEM_STATUS: Record<EstoqueStatus, number> = { negativo: 0, baixo: 1, ok: 2 }
 
 function somarPorProduto(itens: { productId: string; quantity: number }[]): Map<string, number> {
   const m = new Map<string, number>()
@@ -59,7 +53,7 @@ export function calcularEstoque(
       vendido,
       saldo,
       minimo: p.minStock,
-      status: statusDe(saldo, p.minStock),
+      status: statusEstoque(saldo, p.minStock),
     }
   })
 
