@@ -308,6 +308,7 @@ O Prisma é mockado globalmente em `src/__tests__/setup.ts`. Nenhum teste requer
 | Sprint 2 | ✅ Concluído | Seletor de data no lançamento (react-datepicker, pt-BR), gestão de gastos com filtro por período e agrupamento por categoria |
 | Sprint 3 | ✅ Concluído | Relatório de lucro real em `/relatorios`: cruza faturamento × gastos reais por período (presets + intervalo livre), com aba Resumo (KPIs + gastos por categoria) e aba Gráficos (rosca + linha por semana, Recharts) |
 | Sprint 4 | ✅ Concluído | Controle de estoque de produtos vendáveis em `/estoque`: saldo = entradas − vendas, registro de entradas/reposições, estoque mínimo por produto e alerta de estoque baixo no dashboard |
+| Sprint 5 | ✅ Concluído | Insumos e ficha técnica: cadastro de insumos com unidade e custo, estoque de insumos (entradas de compra, saldo = entradas − consumo derivado das vendas), receita insumo→produto na página do produto, custo real por produto e alerta de insumos em falta no dashboard |
 
 ---
 

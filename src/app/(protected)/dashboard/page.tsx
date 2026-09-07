@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { calcularResumo } from '@/lib/totals'
 import { calcularEstoque } from '@/lib/estoque'
+import { calcularEstoqueInsumos } from '@/lib/insumos'
 import { LogoutButton } from './LogoutButton'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import Link from 'next/link'
@@ -48,6 +49,21 @@ export default async function DashboardPage() {
     todasVendas.map(s => ({ productId: s.productId, quantity: s.quantity })),
   ).filter(item => item.status !== 'ok')
 
+  const [insumos, entradasInsumo, receitas] = await Promise.all([
+    prisma.insumo.findMany({ where: { userId: session!.user.id } }),
+    prisma.insumoEntry.findMany({ where: { userId: session!.user.id } }),
+    prisma.recipeItem.findMany({ where: { userId: session!.user.id } }),
+  ])
+
+  const alertasInsumos = calcularEstoqueInsumos(
+    insumos.map(i => ({ id: i.id, name: i.name, unit: i.unit, cost: i.cost, minStock: i.minStock })),
+    entradasInsumo.map(e => ({ insumoId: e.insumoId, quantity: e.quantity })),
+    receitas.map(r => ({ productId: r.productId, insumoId: r.insumoId, quantity: r.quantity })),
+    todasVendas.map(s => ({ productId: s.productId, quantity: s.quantity })),
+  ).filter(item => item.status !== 'ok')
+
+  const fmtSaldo = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2))
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 lg:p-6">
       <div className="flex justify-between items-center mb-4 lg:hidden">
@@ -88,6 +104,27 @@ export default async function DashboardPage() {
                 <span className="dark:text-slate-200">{item.nome}</span>
                 <span className={item.saldo < 0 ? 'text-red-500 font-semibold' : 'text-amber-600 dark:text-amber-400 font-semibold'}>
                   {item.saldo} un.
+                </span>
+              </div>
+            ))}
+          </div>
+        </Link>
+      )}
+
+      {alertasInsumos.length > 0 && (
+        <Link
+          href="/insumos"
+          className="block bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-500/40 rounded-2xl p-4 mb-6 shadow-sm"
+        >
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">
+            ⚠️ Insumos em falta ({alertasInsumos.length})
+          </p>
+          <div className="flex flex-col gap-1">
+            {alertasInsumos.map(item => (
+              <div key={item.insumoId} className="flex justify-between text-sm">
+                <span className="dark:text-slate-200">{item.nome}</span>
+                <span className={item.saldo < 0 ? 'text-red-500 font-semibold' : 'text-amber-600 dark:text-amber-400 font-semibold'}>
+                  {fmtSaldo(item.saldo)} {item.unidade}
                 </span>
               </div>
             ))}

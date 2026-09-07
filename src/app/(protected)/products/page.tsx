@@ -41,19 +41,21 @@ export default async function ProductsPage() {
       ) : (
         <ul className="space-y-3">
           {products.map(product => (
-            <li
-              key={product.id}
-              className="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-4"
-            >
-              <div className="flex justify-between items-start">
-                <span className="font-medium dark:text-slate-100">{product.name}</span>
-                <span className="text-green-600 font-bold">
-                  R$ {product.price.toFixed(2)}
+            <li key={product.id}>
+              <Link
+                href={`/products/${product.id}`}
+                className="block bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-4 hover:border-orange-300 dark:hover:border-orange-500/40 transition-colors"
+              >
+                <div className="flex justify-between items-start">
+                  <span className="font-medium dark:text-slate-100">{product.name}</span>
+                  <span className="text-green-600 font-bold">
+                    R$ {product.price.toFixed(2)}
+                  </span>
+                </div>
+                <span className="text-gray-400 dark:text-slate-500 text-sm">
+                  Custo: R$ {product.cost.toFixed(2)} · ficha técnica →
                 </span>
-              </div>
-              <span className="text-gray-400 dark:text-slate-500 text-sm">
-                Custo: R$ {product.cost.toFixed(2)}
-              </span>
+              </Link>
             </li>
           ))}
         </ul>

@@ -8,15 +8,18 @@ datasource db {
 }
 
 model User {
-  id           String       @id @default(uuid())
-  email        String       @unique
-  name         String?
-  password     String
-  products     Product[]
-  sales        Sale[]
-  expenses     Expense[]
-  stockEntries StockEntry[]
-  createdAt    DateTime     @default(now())
+  id            String        @id @default(uuid())
+  email         String        @unique
+  name          String?
+  password      String
+  products      Product[]
+  sales         Sale[]
+  expenses      Expense[]
+  stockEntries  StockEntry[]
+  insumos       Insumo[]
+  insumoEntries InsumoEntry[]
+  recipeItems   RecipeItem[]
+  createdAt     DateTime      @default(now())
 }
 
 model Product {
@@ -29,6 +32,7 @@ model Product {
   user         User         @relation(fields: [userId], references: [id])
   sales        Sale[]
   stockEntries StockEntry[]
+  recipeItems  RecipeItem[]
   createdAt    DateTime     @default(now())
 }
 
@@ -75,4 +79,45 @@ model StockEntry {
   createdAt DateTime @default(now())
 
   @@index([userId, date])
+}
+
+model Insumo {
+  id          String        @id @default(uuid())
+  name        String
+  unit        String
+  cost        Float
+  minStock    Float         @default(0)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  entries     InsumoEntry[]
+  recipeItems RecipeItem[]
+  createdAt   DateTime      @default(now())
+}
+
+model InsumoEntry {
+  id        String   @id @default(uuid())
+  insumoId  String
+  insumo    Insumo   @relation(fields: [insumoId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @db.Date
+  quantity  Float
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model RecipeItem {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  insumoId  String
+  insumo    Insumo   @relation(fields: [insumoId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  quantity  Float
+  createdAt DateTime @default(now())
+
+  @@unique([productId, insumoId])
 }
