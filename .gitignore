@@ -51,3 +51,10 @@ next-env.d.ts
 
 # Superpowers visual companion temp files
 /.superpowers
+
+# other AI/agent tooling local state (skills, harness runs, etc.)
+/.agents
+/.cursor
+/.harness-eval
+/.tlc
+/.windsurf
